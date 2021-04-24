@@ -46,11 +46,15 @@ function app() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    const a_light = new THREE.AmbientLight(0x404040);
-    scene.add(a_light);
+    const light = new THREE.PointLight(0xff0000, 1, 100);
+    light.position.set(3, 1, 5);
+    scene.add(light);
+
+    // const a_light = new THREE.AmbientLight(0x404040);
+    // scene.add(a_light);
 
     const geometry = new THREE.SphereGeometry(0.4, 32, 32);
-    const material = new THREE.MeshLambertMaterial({color: 0x00ff00});
+    const material = new THREE.MeshLambertMaterial({color: 0xff0000});
     const sphere = new THREE.Mesh(geometry, material);
     sphere.rotation.y = 0.4;
     scene.add(sphere);
