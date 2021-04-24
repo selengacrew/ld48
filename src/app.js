@@ -62,6 +62,7 @@ function app() {
     gui.add(state, 'offset_z')
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_z = value);
+    let current_gui = gui.add(state, 'current_scene');
 
     let time = 0;
     let prev_time = (+new Date());
@@ -81,6 +82,7 @@ function app() {
         // console.log(state.camera);
         renderer.render(state.scene, state.camera);
             
+        current_gui.updateDisplay();
         requestAnimationFrame(animate);   
     }
     

@@ -21,6 +21,7 @@ function game_update(t, dt, state) {
         }
         v.visible = false;
     });
+    state.current_scene = SELENGA_MAP[min_id].name;    
 
     if(!ADD_NEW) {
         state.panorama[min_id].visible = true;
@@ -211,6 +212,8 @@ function game_init() {
     state.offset_x = 0;
     state.offset_y = 0;
     state.offset_z = 0;
+
+    state.current_scene = "";
 
     return state;
 }
