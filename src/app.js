@@ -23,6 +23,10 @@ function app() {
     window.addEventListener('resize', onWindowResize);
 
     document.addEventListener('keydown', (event) => {
+        if(event.code !== "F11" && event.code !== "F12" && event.code !== "F5") {
+            event.preventDefault();
+        }
+
         if(event.key === "Control") {
             if(!locked) {
                 state.controls.lock();
@@ -32,14 +36,18 @@ function app() {
                 locked = false;
             }
         } else {
-            game_handle_key(event.key, true, state);
+            game_handle_key(event.code, true, state);
         }
     });
 
     document.addEventListener('keyup', (event) => {
+        if(event.code !== "F11" && event.code !== "F12" && event.code !== "F5") {
+            event.preventDefault();
+        }
+
         if(event.key === "Control") {
         } else {
-            game_handle_key(event.key, false, state);
+            game_handle_key(event.code, false, state);
         }
     });
 
@@ -53,7 +61,15 @@ function app() {
         
     });
 
-    // gui.add(state, 'correction');
+    gui.add(state, 'offset_x')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_x = value);
+    gui.add(state, 'offset_y')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_y = value);
+    gui.add(state, 'offset_z')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_z = value);
 
     let time = 0;
     let prev_time = (+new Date());

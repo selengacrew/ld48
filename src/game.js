@@ -1,8 +1,46 @@
 
+<<<<<<< HEAD
 function game_update(t, dt, state) {
     state.camera.position.z += -(state.forward - state.backward) * dt * 2;
     state.camera.position.x += (state.right - state.left) * dt * 2;
     state.camera.position.y += (state.up - state.down) * dt * 2;
+=======
+const ADD_NEW = true;
+const ADD_NAME = 'assets/inside31.png';
+
+function game_update(t, dt, state) {
+    state.camera.position.x += (state.right - state.left) * dt * 1;
+    state.camera.position.y += (state.up - state.down) * dt * 1;
+    state.camera.position.z += -(state.forward - state.backward) * dt * 1;
+
+    let min_distance = 1e308;
+    let min_id = null;
+
+    state.panorama.forEach((v, id) => {
+        let distance =
+            Math.pow(v.position.x - state.camera.position.x, 2) +
+            Math.pow(v.position.y - state.camera.position.y, 2) +
+            Math.pow(v.position.z - state.camera.position.z, 2);
+        if(distance < min_distance) {
+            min_distance = distance;
+            min_id = id;
+        }
+        v.visible = false;
+    });
+
+    if(!ADD_NEW) {
+        state.panorama[min_id].visible = true;
+    } else {
+        state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
+        state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
+
+        state.new_panorama.position.copy(state.camera.position);
+        state.new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
+        state.new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
+        state.new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
+        state.new_panorama.updateMatrix();
+    }
+>>>>>>> origin/master
 }
 
 function game_init() {
@@ -86,11 +124,26 @@ function game_init() {
             resolution: {value: [window.innerWidth, window.innerHeight]}
         };
 
+<<<<<<< HEAD
         const sphere_shader = new THREE.ShaderMaterial({
             uniforms: sphere_uniforms,
             vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
             fragmentShader: sphere_fragment[0],
             side: THREE.DoubleSide
+=======
+    // attached to camera
+    if(ADD_NEW) {
+        let texture = textureLoader.load(ADD_NAME);
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.encoding = THREE.sRGBEncoding;
+
+        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
+        const material = new THREE.MeshLambertMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            opacity: 0.99,
+            transparent: true
+>>>>>>> origin/master
         });
 
         // const textureLoader = new THREE.TextureLoader();
@@ -194,26 +247,42 @@ function game_init() {
     state.forward = 0;
     state.backward = 0;
 
+    state.offset_x = 0;
+    state.offset_y = 0;
+    state.offset_z = 0;
+
     return state;
 }
 
-function game_handle_key(key, is_press, state) {
-    if(key === "w") {
+function game_handle_key(code, is_press, state) {
+
+    if(code === 'ArrowUp' || code === 'KeyW') {
         state.forward = is_press ? 1 : 0;
     }
-    if(key === "s") {
+    if(code === 'ArrowDown' || code === 'KeyS') {
         state.backward = is_press ? 1 : 0;
     }
-    if(key === "a") {
+    if(code === 'ArrowLeft' || code === 'KeyA') {
         state.left = is_press ? 1 : 0;
     }
-    if(key === "d") {
+    if(code === 'ArrowRight' || code === 'KeyD') {
         state.right = is_press ? 1 : 0;
     }
-    if(key === "e") {
+    if(code === "KeyE") {
         state.up = is_press ? 1 : 0;
     }
-    if(key === "q") {
+    if(code === "KeyQ") {
         state.down = is_press ? 1 : 0;
     }
+<<<<<<< HEAD
+=======
+
+    if(code == "KeyZ" && is_press) {
+        console.log(`{
+            name: '${ADD_NAME}',
+            position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
+            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
+        },`);
+    }
+>>>>>>> origin/master
 }
