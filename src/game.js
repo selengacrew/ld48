@@ -1,6 +1,6 @@
 
 const ADD_NEW = true;
-const ADD_NAME = 'assets/inside30.png';
+const ADD_NAME = 'assets/inside31.png';
 
 function game_update(t, dt, state) {
     state.camera.position.x += (state.right - state.left) * dt * 1;
@@ -30,8 +30,8 @@ function game_update(t, dt, state) {
 
         state.new_panorama.position.copy(state.camera.position);
         state.new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
-        state.new_panorama.rotation.x = state.camera.rotation.y + state.offset_y;
-        state.new_panorama.rotation.x = state.camera.rotation.z + state.offset_z;
+        state.new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
+        state.new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
         state.new_panorama.updateMatrix();
     }
 }
@@ -207,6 +207,10 @@ function game_init() {
     state.right = 0;
     state.forward = 0;
     state.backward = 0;
+
+    state.offset_x = 0;
+    state.offset_y = 0;
+    state.offset_z = 0;
 
     return state;
 }

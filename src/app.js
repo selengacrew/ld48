@@ -53,7 +53,15 @@ function app() {
         
     });
 
-    gui.add(state, 'offset_x');
+    gui.add(state, 'offset_x')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_x = value);
+    gui.add(state, 'offset_y')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_y = value);
+    gui.add(state, 'offset_z')
+        .min(-Math.PI).max(Math.PI).step(0.01)
+        .listen().onChange(value => state.offset_z = value);
 
     let time = 0;
     let prev_time = (+new Date());
