@@ -3,26 +3,6 @@ const vert = x => x;
 const frag = x => x;
 
 const renderer = new THREE.WebGLRenderer({alpha: false});
-let state = {};
-
-let time = 0;
-let prev_time = (+new Date());
-
-function animate() {
-
-    let now = (+new Date());
-    let dt = (now - prev_time) / 1000;
-    prev_time = now;
-    
-    time += dt;
-
-    game_update(time, dt, state);
-    
-    // renderer.setRenderTarget(null);
-    renderer.render(state.scene, state.camera);
-        
-    requestAnimationFrame(animate);   
-}
 
 function app() {
     const gui = new dat.GUI();
@@ -52,14 +32,14 @@ function app() {
                 locked = false;
             }
         } else {
-            game_handle_key(event.key, true);
+            game_handle_key(event.key, true, state);
         }
     });
 
     document.addEventListener('keyup', (event) => {
         if(event.key === "Control") {
         } else {
-            game_handle_key(event.key, false);
+            game_handle_key(event.key, false, state);
         }
     });
 
@@ -86,6 +66,25 @@ function app() {
             state.macht_sphere.scale.set(value, value, value);
         });
 
+        let time = 0;
+        let prev_time = (+new Date());
+        
+    function animate() {
+    
+        let now = (+new Date());
+        let dt = (now - prev_time) / 1000;
+        prev_time = now;
+        
+        time += dt;
+    
+        game_update(time, dt, state);
+        
+        // renderer.setRenderTarget(null);
+        renderer.render(state.scene, state.camera);
+            
+        requestAnimationFrame(animate);   
+    }
+    
     animate();
 }
 

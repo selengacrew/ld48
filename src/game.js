@@ -1,6 +1,8 @@
 
 function game_update(t, dt, state) {
-
+    state.camera.position.z += -(state.forward - state.backward) * dt * 2;
+    state.camera.position.x += (state.right - state.left) * dt * 2;
+    state.camera.position.y += (state.up - state.down) * dt * 2;
 }
 
 function game_init() {
@@ -16,17 +18,18 @@ function game_init() {
 
     state.controls = new THREE.PointerLockControls(state.camera, document.body);
 
-    const light = new THREE.PointLight(0xff0000, 1, 100);
+    
+    const light = new THREE.PointLight(0xffffff, 1, 100);
     light.color.set('white');
     light.position.set(3, 1, 5);
     state.scene.add(light);
+    
 
-    const ambient = new THREE.AmbientLight();
+    
+    const ambient = new THREE.AmbientLight(0x010101, 0.4);
     ambient.color.set('white');
     state.scene.add(ambient);
-
-    // const a_light = new THREE.AmbientLight(0x404040);
-    // scene.add(a_light);
+    
     
     const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
 
@@ -89,9 +92,33 @@ function game_init() {
         state.scene.add(macht_sphere);
     }
 
+    state.up = 0;
+    state.down = 0;
+    state.left = 0;
+    state.right = 0;
+    state.forward = 0;
+    state.backward = 0;
+
     return state;
 }
 
-function game_handle_key(key, is_press) {
-
+function game_handle_key(key, is_press, state) {
+    if(key === "w") {
+        state.forward = is_press ? 1 : 0;
+    }
+    if(key === "s") {
+        state.backward = is_press ? 1 : 0;
+    }
+    if(key === "a") {
+        state.left = is_press ? 1 : 0;
+    }
+    if(key === "d") {
+        state.right = is_press ? 1 : 0;
+    }
+    if(key === "e") {
+        state.up = is_press ? 1 : 0;
+    }
+    if(key === "q") {
+        state.down = is_press ? 1 : 0;
+    }
 }
