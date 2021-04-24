@@ -23,6 +23,10 @@ function app() {
     window.addEventListener('resize', onWindowResize);
 
     document.addEventListener('keydown', (event) => {
+        if(event.code !== "F11" && event.code !== "F12" && event.code !== "F5") {
+            event.preventDefault();
+        }
+
         if(event.key === "Control") {
             if(!locked) {
                 state.controls.lock();
@@ -37,6 +41,10 @@ function app() {
     });
 
     document.addEventListener('keyup', (event) => {
+        if(event.code !== "F11" && event.code !== "F12" && event.code !== "F5") {
+            event.preventDefault();
+        }
+
         if(event.key === "Control") {
         } else {
             game_handle_key(event.code, false, state);
