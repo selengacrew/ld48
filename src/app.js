@@ -80,6 +80,8 @@ function app() {
         game_update(time, dt, state);
         
         // renderer.setRenderTarget(null);
+        // state.camera.updateProjectionMatrix();
+        // console.log(state.camera);
         renderer.render(state.scene, state.camera);
             
         requestAnimationFrame(animate);   

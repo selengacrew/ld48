@@ -18,7 +18,7 @@ function game_init() {
 
     state.controls = new THREE.PointerLockControls(state.camera, document.body);
 
-    
+
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.color.set('white');
     light.position.set(3, 1, 5);
@@ -90,6 +90,60 @@ function game_init() {
         state.macht_sphere = macht_sphere;
 
         state.scene.add(macht_sphere);
+
+
+    // floor
+
+    const plane_vertex = vert`    
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
+    }
+    `
+
+    const plane_fragment_shader = frag`
+        precision mediump float;
+        precision mediump int;
+
+        uniform float time;
+
+        varying vec2 vUv;
+
+        void main() {
+            vec3 color = vec3(0.);
+            vec2 uv = vUv * 100.;
+
+            float gridX = mod(uv.x, 1.) > .99 ? 1. : 0. ;
+            float gridY = mod(uv.y, 1.) > .99 ? 1. : 0. ;
+
+            color += (gridX + gridY) * vec3(1., 0., 1.);
+
+            gl_FragColor = vec4(color, 1.);
+        }
+    `;
+
+    let uniforms = { 
+        time: {value: 0.0},
+        resolution: {value: [window.innerWidth, window.innerHeight]},
+
+    };
+    let floor_material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: plane_vertex[0], //THREE.DefaultVertex,
+        fragmentShader: plane_fragment_shader[0]
+    });
+
+    const floor_geometry = new THREE.PlaneGeometry(100, 100, 32 );
+    // const floor_geometry = new THREE.BoxGeometry( 1, 1, 1 );
+
+    const floor = new THREE.Mesh(floor_geometry, floor_material);
+    floor.rotation.x = - Math.PI / 2;
+    // floor.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 1));
+
+    floor.position.set(0, -7, 0);
+
+    state.scene.add(floor);
     }
 
     state.up = 0;
