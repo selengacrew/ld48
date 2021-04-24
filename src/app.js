@@ -99,7 +99,7 @@ function app() {
     // scene.add(outer_sphere);
 
     const textureLoader = new THREE.TextureLoader();
-    textureEquirec = textureLoader.load('assets/inside23.png');
+    textureEquirec = textureLoader.load('assets/inside3.png');
 
     textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
     textureEquirec.encoding = THREE.sRGBEncoding;
@@ -113,10 +113,71 @@ function app() {
     macht_sphere.rotation.y = Math.PI;
     macht_sphere.rotation.x = 0;
     // macht_sphere.position.set(3, 3.3, -10);
-    let ssize = 8;
+    let ssize = 1;
     macht_sphere.scale.set(ssize, ssize, ssize);
+    
 
-    scene.add(macht_sphere);
+    // scene.add(macht_sphere);
+
+    // floor
+    const plane_vertex_shader = vert`
+        varying vec2 _uv;
+        uniform mat4 projection;
+
+        void main() {
+            vec3 _position = position * 0.355; // WAT
+            _position = _position + 0.25;
+
+            gl_Position = projection * vec4(_position, 1.0 );
+            _uv = (uv - 0.5) * 0.7 + 0.5; // WAT x2
+        }
+    `;
+
+    const plane_fragment_shader = frag`
+        precision mediump float;
+        precision mediump int;
+
+        uniform float time;
+
+        varying vec2 _uv;
+
+        void main() {
+            gl_FragColor =  vec4(time, 1., 1., 1.);
+        }
+    `;
+
+    let uniforms = { 
+        time: {value: 1.0},
+        resolution: {value: [window.innerWidth, window.innerHeight]},
+
+    };
+
+
+    const plane_material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: plane_vertex_shader[0],
+        fragmentShader: plane_fragment_shader[0]
+    });
+
+
+    console.log(plane_material);
+
+
+
+    const floor_geometry = new THREE.PlaneGeometry( 100, 100, 32 );
+    // const floor_material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    // floor_material.color.set('black')
+
+    const floor = new THREE.Mesh(floor_geometry, plane_material);
+    // floor.rotation.x = Math.PI;
+    // floor.rotation.y = Math.PI;
+    floor.rotation.z = Math.PI / 4;
+    // floor.rotation.x = - Math.PI / 2;
+
+    floor.position.set(0, -5, -10);
+
+    scene.add(floor);
+
 
     let locked = false;
 
