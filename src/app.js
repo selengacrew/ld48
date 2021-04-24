@@ -11,6 +11,8 @@ const camera = new THREE.PerspectiveCamera(
     80, window.innerWidth / window.innerHeight, 0.1, 1000
 );
 
+const controls = new THREE.PointerLockControls(camera, document.body);
+
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -115,37 +117,17 @@ function app() {
 
     scene.add(macht_sphere);
 
-
-    /*
-    let param = {
-        add_plane: () => {
-            let folder = gui.addFolder("plane" + plane_id);
-            plane_id++;
-
-            let uniforms = {
-                time: {value: 1.0},
-                backbuffer: {type: "t", value: null},
-                camera: {type: "t", value: null},
-                resolution: {value: [window.innerWidth, window.innerHeight]},
-                plane_id: {value: plane_id},
-                texture0: {type: "t", value: null},
-                texture1: {type: "t", value: null},
-                texture2: {type: "t", value: null},
-            };
-
-            let plane = add_plane(scene, backstage, folder, uniforms);
-            cbs.push(plane);
-            plane.update_material(editor.getValue());           
-        },
-        loaded: false,
-        plane_id: 0
-    };
-    */
+    let locked = false;
 
     document.addEventListener('keydown', (event) => {
         if(event.key === "Control") {
-            move_camera = true;
-            init_rotation = [camera.rotation.x, camera.rotation.y];
+            if(!locked) {
+                controls.lock();
+                locked = true;
+            } else {
+                controls.unlock();
+                locked = false;
+            }
         }
     });
 
@@ -155,23 +137,11 @@ function app() {
         }
     });
 
-    let move_camera = false;
-    let mouse_init = [0, 0];
-    let init_rotation = [0, 0];
-
     window.addEventListener('mousedown', (evt) => {
         
     });
     window.addEventListener('mousemove', (evt) => {
-        let x = (mouse_init[0] - evt.pageX) / rtWidth;
-        let y = (mouse_init[1] - evt.pageY) / rtHeight;
         
-        if(move_camera) {
-            camera.rotation.x = y * 3 + init_rotation[0];
-            camera.rotation.y = x * 3 + init_rotation[1];
-        } else {
-            mouse_init = [evt.pageX, evt.pageY];
-        }
     });
     window.addEventListener('mouseup', (evt) => {
         
