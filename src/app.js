@@ -53,22 +53,10 @@ function app() {
         
     });
 
-    let param = {one: 80, two: 8, correction: false};
-    gui.add(param, 'one')
-        .min(5).max(300).step(1)
-        .listen().onChange(value => {
-            state.camera.fov = value;
-            state.camera.updateProjectionMatrix();
-        });
-    gui.add(param, 'two')
-        .min(1).max(20).step(0.1)
-        .listen().onChange(value => {
-            state.macht_sphere.scale.set(value, value, value);
-        });
+    // gui.add(state, 'correction');
 
-        let time = 0;
-        let prev_time = (+new Date());
-    gui.add(state, 'correction');
+    let time = 0;
+    let prev_time = (+new Date());
         
     function animate() {
     
