@@ -5,7 +5,7 @@ const frag = x => x;
 const renderer = new THREE.WebGLRenderer({alpha: false});
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color('black');
+scene.background = new THREE.Color('purple');
 
 
 const camera = new THREE.PerspectiveCamera(
@@ -47,17 +47,28 @@ function app() {
     document.body.appendChild(renderer.domElement);
 
     const light = new THREE.PointLight(0xff0000, 1, 100);
+    light.color.set('white');
     light.position.set(3, 1, 5);
     scene.add(light);
 
-    // const a_light = new THREE.AmbientLight(0x404040);
-    // scene.add(a_light);
+    const textureLoader = new THREE.TextureLoader();
+    textureEquirec = textureLoader.load( 'assets/macht42.png' );
+
+    textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+    textureEquirec.encoding = THREE.sRGBEncoding;
+
 
     const geometry = new THREE.SphereGeometry(0.4, 32, 32);
-    const material = new THREE.MeshLambertMaterial({color: 0xff0000});
+    const material = new THREE.MeshLambertMaterial({envMap: textureEquirec});
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.rotation.y = 0.4;
+    // sphere.rotation.y = 7.8;
+    sphere.position.set(3, 3.3, -10);
+    let ssize = 8;
+    sphere.scale.set(ssize, ssize, ssize);
+
+
     scene.add(sphere);
+
 
     /*
     let param = {
@@ -124,7 +135,7 @@ function app() {
 
     // console.log(test_texture);
 
-    camera.position.z = 5;
+    camera.position.z = 1;
 
 
     // param.add_plane();
