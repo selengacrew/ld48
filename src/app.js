@@ -76,7 +76,7 @@ function app() {
     sphere_0.position.x = 2;
     sphere_0.position.z = -5;
     // scene.add(sphere_0);
-    
+ 
     const sphere_1 = new THREE.Mesh(
         new THREE.SphereGeometry(0.4, 32, 32),
         red_material
@@ -99,18 +99,19 @@ function app() {
     // scene.add(outer_sphere);
 
     const textureLoader = new THREE.TextureLoader();
-    textureEquirec = textureLoader.load('assets/inside41.png');
+    textureEquirec = textureLoader.load('assets/inside23.png');
 
     textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
     textureEquirec.encoding = THREE.sRGBEncoding;
 
-    const macht_geometry = new THREE.SphereGeometry(100, 32, 32, Math.PI, Math.PI * 2);
+    const macht_geometry = new THREE.SphereGeometry(100, 32, 32, 0, Math.PI);
     const macht_material = new THREE.MeshLambertMaterial({
-        envMap: textureEquirec,
+        map: textureEquirec,
         side: THREE.DoubleSide
     });
     const macht_sphere = new THREE.Mesh(macht_geometry, macht_material);
-    // sphere.rotation.y = 7.8;
+    macht_sphere.rotation.y = Math.PI;
+    macht_sphere.rotation.x = 0;
     // macht_sphere.position.set(3, 3.3, -10);
     let ssize = 8;
     macht_sphere.scale.set(ssize, ssize, ssize);
@@ -147,12 +148,17 @@ function app() {
         
     });
 
-    let param = {one: 80};
+    let param = {one: 80, two: 8};
     gui.add(param, 'one')
         .min(5).max(300).step(1)
         .listen().onChange(value => {
             camera.fov = value;
             camera.updateProjectionMatrix();
+        });
+    gui.add(param, 'two')
+        .min(1).max(20).step(0.1)
+        .listen().onChange(value => {
+            macht_sphere.scale.set(value, value, value);
         });
 
     /*
