@@ -215,27 +215,28 @@ function game_init() {
     return state;
 }
 
-function game_handle_key(key, is_press, state) {
-    if(key === "w") {
+function game_handle_key(code, is_press, state) {
+
+    if(code === 'ArrowUp' || code === 'KeyW') {
         state.forward = is_press ? 1 : 0;
     }
-    if(key === "s") {
+    if(code === 'ArrowDown' || code === 'KeyS') {
         state.backward = is_press ? 1 : 0;
     }
-    if(key === "a") {
+    if(code === 'ArrowLeft' || code === 'KeyA') {
         state.left = is_press ? 1 : 0;
     }
-    if(key === "d") {
+    if(code === 'ArrowRight' || code === 'KeyD') {
         state.right = is_press ? 1 : 0;
     }
-    if(key === "e") {
+    if(code === "KeyE") {
         state.up = is_press ? 1 : 0;
     }
-    if(key === "q") {
+    if(code === "KeyQ") {
         state.down = is_press ? 1 : 0;
     }
 
-    if(key == "z" && is_press) {
+    if(code == "KeyZ" && is_press) {
         console.log(`{
             name: '${ADD_NAME}',
             position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
