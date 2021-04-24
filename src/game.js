@@ -1,6 +1,6 @@
 
-const ADD_NEW = true;
-const ADD_NAME = 'assets/inside31.png';
+const ADD_NEW = false;
+const ADD_NAME = 'assets/inside33.png';
 
 function game_update(t, dt, state) {
     state.camera.position.x += (state.right - state.left) * dt * 1;
