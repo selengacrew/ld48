@@ -1,5 +1,6 @@
 
-const ADD_NEW = false;
+const ADD_NEW = true;
+const ADD_NAME = 'assets/inside30.png';
 
 function game_update(t, dt, state) {
     state.camera.position.x += (state.right - state.left) * dt * 1;
@@ -28,7 +29,9 @@ function game_update(t, dt, state) {
         state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
 
         state.new_panorama.position.copy(state.camera.position);
-        state.new_panorama.rotation.copy(state.camera.rotation);
+        state.new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
+        state.new_panorama.rotation.x = state.camera.rotation.y + state.offset_y;
+        state.new_panorama.rotation.x = state.camera.rotation.z + state.offset_z;
         state.new_panorama.updateMatrix();
     }
 }
@@ -125,7 +128,7 @@ function game_init() {
 
     // attached to camera
     if(ADD_NEW) {
-        let texture = textureLoader.load('assets/inside25.png');
+        let texture = textureLoader.load(ADD_NAME);
         texture.mapping = THREE.EquirectangularReflectionMapping;
         texture.encoding = THREE.sRGBEncoding;
 
@@ -229,8 +232,10 @@ function game_handle_key(key, is_press, state) {
     }
 
     if(key == "z" && is_press) {
-        console.log(`
+        console.log(`{
+            name: '${ADD_NAME}',
             position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
-            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]`);
+            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
+        },`);
     }
 }

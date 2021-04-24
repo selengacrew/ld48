@@ -53,7 +53,7 @@ function app() {
         
     });
 
-    // gui.add(state, 'correction');
+    gui.add(state, 'offset_x');
 
     let time = 0;
     let prev_time = (+new Date());
