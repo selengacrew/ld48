@@ -1,6 +1,6 @@
 
-const ADD_NEW = true;
-const ADD_NAME = 'assets/inside31.png';
+const ADD_NEW = false;
+const ADD_NAME = 'assets/inside33.png';
 
 function game_update(t, dt, state) {
     state.camera.position.x += (state.right - state.left) * dt * 1;
@@ -21,6 +21,7 @@ function game_update(t, dt, state) {
         }
         v.visible = false;
     });
+    state.current_scene = SELENGA_MAP[min_id].name;    
 
     if(!ADD_NEW) {
         state.panorama[min_id].visible = true;
@@ -211,6 +212,8 @@ function game_init() {
     state.offset_x = 0;
     state.offset_y = 0;
     state.offset_z = 0;
+
+    state.current_scene = "";
 
     return state;
 }
