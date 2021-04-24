@@ -1,36 +1,8 @@
 
-const ADD_NEW = false;
-
 function game_update(t, dt, state) {
-    state.camera.position.x += (state.right - state.left) * dt * 1;
-    state.camera.position.y += (state.up - state.down) * dt * 1;
-    state.camera.position.z += -(state.forward - state.backward) * dt * 1;
-
-    let min_distance = 1e308;
-    let min_id = null;
-
-    state.panorama.forEach((v, id) => {
-        let distance =
-            Math.pow(v.position.x - state.camera.position.x, 2) +
-            Math.pow(v.position.y - state.camera.position.y, 2) +
-            Math.pow(v.position.z - state.camera.position.z, 2);
-        if(distance < min_distance) {
-            min_distance = distance;
-            min_id = id;
-        }
-        v.visible = false;
-    });
-
-    if(!ADD_NEW) {
-        state.panorama[min_id].visible = true;
-    } else {
-        state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
-        state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
-
-        state.new_panorama.position.copy(state.camera.position);
-        state.new_panorama.rotation.copy(state.camera.rotation);
-        state.new_panorama.updateMatrix();
-    }
+    state.camera.position.z += -(state.forward - state.backward) * dt * 2;
+    state.camera.position.x += (state.right - state.left) * dt * 2;
+    state.camera.position.y += (state.up - state.down) * dt * 2;
 }
 
 function game_init() {
@@ -46,38 +18,18 @@ function game_init() {
 
     state.controls = new THREE.PointerLockControls(state.camera, document.body);
 
+
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.color.set('white');
     light.position.set(3, 1, 5);
     state.scene.add(light);
     
+
+    
     const ambient = new THREE.AmbientLight(0x010101, 0.4);
     ambient.color.set('white');
     state.scene.add(ambient);
     
-    
-    const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
-
-    {
-        const sphere_0 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 32, 32),
-            red_material
-        );
-        // sphere_0.rotation.y = 0.4;
-        sphere_0.position.x = 2;
-        sphere_0.position.z = -5;
-        // state.scene.add(sphere_0);
-    }
- 
-    {
-        const sphere_1 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 32, 32),
-            red_material
-        );
-        sphere_1.position.x = 0;
-        sphere_1.position.z = -5;
-        state.scene.add(sphere_1);
-    }
 
     {
         const green_material = new THREE.MeshLambertMaterial({
@@ -94,53 +46,74 @@ function game_init() {
         // scene.add(outer_sphere);
     }
 
-    const textureLoader = new THREE.TextureLoader();
+    {
+        const sphere_vertex = vert`    
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
+        }
+        `
 
-    state.panorama = [];
+        const sphere_fragment = frag`
+        varying vec2 vUv;
 
-    // fixed panorama
-    SELENGA_MAP.forEach(map_tex => {
-        let texture = textureLoader.load(map_tex.name);
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        texture.encoding = THREE.sRGBEncoding;
+        uniform vec2 resolution;
+        uniform sampler2D texture0;
 
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
-        const material = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            opacity: 0.99,
-            transparent: true
+        const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
+        const mat3 sobelY = mat3(-1.0,-2.0,-1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0)/8.0;
+
+        vec4 conv3x3(vec2 uv, mat3 fil) {
+            vec4 a = vec4(0.0);
+            for (int y=0; y<3; ++y)
+            for (int x=0; x<3; ++x) {
+              vec2 p = uv * resolution + vec2(float(x-1), float(y-1));
+              a += fil[y][x] * texture2D(texture0, p / resolution);
+            }
+            return a;
+        }
+
+        void main() {
+
+        gl_FragColor = conv3x3(vUv, sobelX) + conv3x3(vUv, sobelY) + texture2D(texture0, vUv) * 0.;
+
+        }
+        `
+
+        let sphere_uniforms = {
+            texture0: { type: "t", value: THREE.ImageUtils.loadTexture( "assets/inside15.png" )}, 
+            resolution: {value: [window.innerWidth, window.innerHeight]}
+        };
+
+        const sphere_shader = new THREE.ShaderMaterial({
+            uniforms: sphere_uniforms,
+            vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
+            fragmentShader: sphere_fragment[0],
+            side: THREE.DoubleSide
         });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = map_tex.position[0];
-        mesh.position.y = map_tex.position[1];
-        mesh.position.z = map_tex.position[2];
-        mesh.rotation.x = map_tex.rotation[0];
-        mesh.rotation.y = map_tex.rotation[1];
-        mesh.rotation.z = map_tex.rotation[2];
-        mesh.scale.set(1, 1, -1);
-        state.scene.add(mesh);
-        state.panorama.push(mesh);
-    });
 
-    // attached to camera
-    if(ADD_NEW) {
-        let texture = textureLoader.load('assets/inside25.png');
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        texture.encoding = THREE.sRGBEncoding;
+        // const textureLoader = new THREE.TextureLoader();
+        // textureEquirec = textureLoader.load('assets/inside23.png');
 
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
-        const material = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            opacity: 0.99,
-            transparent: true
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.scale.set(1, 1, -1);
-        state.scene.add(mesh);
-        state.new_panorama = mesh;
-    }
+        // textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+        // textureEquirec.encoding = THREE.sRGBEncoding;
+
+        const macht_geometry = new THREE.SphereGeometry(1, 32, 32, 0, Math.PI);
+        // const macht_material = new THREE.MeshLambertMaterial({
+        //     map: textureEquirec,
+        //     side: THREE.DoubleSide
+        // });
+        const macht_sphere = new THREE.Mesh(macht_geometry, sphere_shader);
+        macht_sphere.rotation.y = Math.PI;
+        macht_sphere.rotation.x = 0;
+        // macht_sphere.position.set(3, 3.3, -10);
+        let ssize = 8;
+        macht_sphere.scale.set(ssize, ssize, ssize);
+        state.macht_sphere = macht_sphere;
+
+        state.scene.add(macht_sphere);
+
 
     // floor shader
 
@@ -181,21 +154,37 @@ function game_init() {
     let floor_material = new THREE.ShaderMaterial({
         uniforms,
         vertexShader: plane_vertex[0], //THREE.DefaultVertex,
-        fragmentShader: plane_fragment_shader[0]
+        fragmentShader: plane_fragment_shader[0],
+        side: THREE.DoubleSide
+
     });
 
-    // floor
-    {
-        const floor_geometry = new THREE.PlaneGeometry(100, 100, 32 );
-        // const floor_geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const floor_geometry = new THREE.PlaneGeometry(100, 100, 32 );
+    // const floor_geometry = new THREE.BoxGeometry( 1, 1, 1 );
 
-        const floor = new THREE.Mesh(floor_geometry, floor_material);
-        floor.rotation.x = - Math.PI / 2;
-        // floor.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 1));
+    const floor = new THREE.Mesh(floor_geometry, floor_material);
+    floor.rotation.x = - Math.PI / 2;
+    // floor.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 1));
 
-        floor.position.set(0, -7, 0);
+    floor.position.set(0, -7, 0);
 
-        state.scene.add(floor);
+    state.scene.add(floor);
+
+
+    // fun
+    
+    const sphere_0 = new THREE.Mesh(
+        new THREE.SphereGeometry(0.4, 32, 32),
+        floor_material,
+        
+    );
+    // sphere_0.rotation.y = 0.4;
+    sphere_0.position.x = 2;
+    sphere_0.position.z = -5;
+    state.scene.add(sphere_0);
+
+
+    // sphere_0.material = floor.material;
     }
 
     state.up = 0;
@@ -226,11 +215,5 @@ function game_handle_key(key, is_press, state) {
     }
     if(key === "q") {
         state.down = is_press ? 1 : 0;
-    }
-
-    if(key == "z" && is_press) {
-        console.log(`
-            position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
-            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]`);
     }
 }
