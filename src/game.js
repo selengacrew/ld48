@@ -1,11 +1,22 @@
 
-const ADD_NEW = true;
+const ADD_NEW = false;
 const ADD_NAME = 'assets/inside31.png';
 
+const VELOCITY = 1;
+
 function game_update(t, dt, state) {
-    state.camera.position.x += (state.right - state.left) * dt * 1;
-    state.camera.position.y += (state.up - state.down) * dt * 1;
-    state.camera.position.z += -(state.forward - state.backward) * dt * 1;
+    /*
+    
+    state.camera.position.z += -() * dt * 1;
+    */
+    let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
+
+    state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
+    state.controls.moveForward(forward_velocity);
+    state.controls.getObject().position.y += (
+        Math.sin(state.camera.rotation.x) * forward_velocity + 
+        (state.up - state.down) * dt * VELOCITY
+    );
 
     let min_distance = 1e308;
     let min_id = null;
@@ -36,18 +47,14 @@ function game_update(t, dt, state) {
     }
 }
 
-function game_init() {
-    let state = {};
-    
-    state.scene = new THREE.Scene();
+function game_init(state) {
     state.scene.background = new THREE.Color('purple');
 
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
     state.camera.position.z = 0;
-
-    state.controls = new THREE.PointerLockControls(state.camera, document.body);
+    state.camera.rotation.order = 'YXZ';
 
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.color.set('white');
@@ -57,7 +64,6 @@ function game_init() {
     const ambient = new THREE.AmbientLight(0x010101, 0.4);
     ambient.color.set('white');
     state.scene.add(ambient);
-    
     
     const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
 
@@ -80,21 +86,6 @@ function game_init() {
         sphere_1.position.x = 0;
         sphere_1.position.z = -5;
         state.scene.add(sphere_1);
-    }
-
-    {
-        const green_material = new THREE.MeshLambertMaterial({
-            color: 0x00ff00,
-            side: THREE.DoubleSide
-        });
-        
-        const outer_sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(6, 32, 32),
-            green_material
-        );
-        // sphere.rotation.y = 0.4;
-        outer_sphere.position.x = 0;
-        // scene.add(outer_sphere);
     }
 
     const textureLoader = new THREE.TextureLoader();

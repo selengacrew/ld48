@@ -12,7 +12,12 @@ function app() {
 
     let locked = false;
 
-    state = game_init();
+    let state = {};
+    state.scene = new THREE.Scene();
+
+    state = game_init(state);
+
+    state.controls = new THREE.PointerLockControls(state.camera, document.body);
 
     function onWindowResize() {
         state.camera.aspect = window.innerWidth / window.innerHeight;
