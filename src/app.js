@@ -8,7 +8,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color('purple');
 
 const camera = new THREE.PerspectiveCamera(
-    50, window.innerWidth / window.innerHeight, 0.1, 1000
+    80, window.innerWidth / window.innerHeight, 0.1, 1000
 );
 
 function onWindowResize() {
