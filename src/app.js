@@ -57,6 +57,10 @@ function app() {
     light.position.set(3, 1, 5);
     scene.add(light);
 
+    const ambient = new THREE.AmbientLight();
+    ambient.color.set('white');
+    scene.add(ambient);
+
     // const a_light = new THREE.AmbientLight(0x404040);
     // scene.add(a_light);
     
@@ -93,12 +97,12 @@ function app() {
     // scene.add(outer_sphere);
 
     const textureLoader = new THREE.TextureLoader();
-    textureEquirec = textureLoader.load('assets/macht15.png');
+    textureEquirec = textureLoader.load('assets/inside41.png');
 
     textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
     textureEquirec.encoding = THREE.sRGBEncoding;
 
-    const macht_geometry = new THREE.SphereGeometry(2, 32, 32, Math.PI, Math.PI * 2);
+    const macht_geometry = new THREE.SphereGeometry(100, 32, 32, Math.PI, Math.PI * 2);
     const macht_material = new THREE.MeshLambertMaterial({
         envMap: textureEquirec,
         side: THREE.DoubleSide
