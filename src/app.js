@@ -32,14 +32,14 @@ function app() {
                 locked = false;
             }
         } else {
-            game_handle_key(event.key, true, state);
+            game_handle_key(event.code, true, state);
         }
     });
 
     document.addEventListener('keyup', (event) => {
         if(event.key === "Control") {
         } else {
-            game_handle_key(event.key, false, state);
+            game_handle_key(event.code, false, state);
         }
     });
 
