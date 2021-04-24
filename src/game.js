@@ -1,8 +1,10 @@
 
+const ADD_NEW = false;
+
 function game_update(t, dt, state) {
-    state.camera.position.x += (state.right - state.left) * dt * 2;
-    state.camera.position.y += (state.up - state.down) * dt * 2;
-    state.camera.position.z += -(state.forward - state.backward) * dt * 2;
+    state.camera.position.x += (state.right - state.left) * dt * 1;
+    state.camera.position.y += (state.up - state.down) * dt * 1;
+    state.camera.position.z += -(state.forward - state.backward) * dt * 1;
 
     // console.log("lookat", state.camera.lookAt);
 
@@ -26,29 +28,16 @@ function game_update(t, dt, state) {
         v.visible = false;
     });
 
-    state.panorama[min_id].visible = true;
+    if(!ADD_NEW) {
+        state.panorama[min_id].visible = true;
+    } else {
+        state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
+        state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
 
-    /*
-    if(state.correction) {
-        state.movable_panorama.position.copy(state.camera.position);
-
-        state.movable_panorama.rotation.x = state.camera.rotation.x;
-        state.movable_panorama.rotation.y = state.camera.rotation.y;// + Math.PI;
-        state.movable_panorama.rotation.z = state.camera.rotation.z;
-        
-
-        state.movable_panorama.rotation.copy(state.camera.rotation);
-        state.movable_panorama.updateMatrix();
-        // state.movable_panorama.translateZ( - 10 );
-
-        
-        /*
-        state.movable_panorama.position.x = state.camera.position.x;
-        state.movable_panorama.position.y = state.camera.position.y;
-        state.movable_panorama.position.z = state.camera.position.z;
-        *
+        state.new_panorama.position.copy(state.camera.position);
+        state.new_panorama.rotation.copy(state.camera.rotation);
+        state.new_panorama.updateMatrix();
     }
-    */
 }
 
 function game_init() {
@@ -129,6 +118,25 @@ function game_init() {
         state.panorama.push(mesh);
     });
 
+    // attached to camera
+    if(ADD_NEW) {
+        let texture = textureLoader.load('assets/inside25.png');
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.encoding = THREE.sRGBEncoding;
+
+        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
+        const material = new THREE.MeshLambertMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            opacity: 0.99,
+            transparent: true
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.scale.set(1, 1, -1);
+        state.scene.add(mesh);
+        state.new_panorama = mesh;
+    }
+
     state.up = 0;
     state.down = 0;
     state.left = 0;
@@ -163,11 +171,7 @@ function game_handle_key(key, is_press, state) {
 
     if(key == "z" && is_press) {
         console.log(`
-            mesh.position.x = ${state.movable_panorama.position.x};
-            mesh.position.y = ${state.movable_panorama.position.y};
-            mesh.position.z = ${state.movable_panorama.position.z};
-            mesh.rotation.x = ${state.movable_panorama.rotation.x};
-            mesh.rotation.y = ${state.movable_panorama.rotation.y};
-            mesh.rotation.z = ${state.movable_panorama.rotation.z};`);
+            position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
+            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]`);
     }
 }
