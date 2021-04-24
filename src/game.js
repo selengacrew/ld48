@@ -92,7 +92,7 @@ function game_init() {
         state.scene.add(macht_sphere);
 
 
-    // floor
+    // floor shader
 
     const plane_vertex = vert`    
     varying vec2 vUv;

@@ -53,7 +53,7 @@ function app() {
         
     });
 
-    let param = {one: 80, two: 8};
+    let param = {one: 80, two: 8, correction: false};
     gui.add(param, 'one')
         .min(5).max(300).step(1)
         .listen().onChange(value => {
@@ -68,6 +68,7 @@ function app() {
 
         let time = 0;
         let prev_time = (+new Date());
+    gui.add(state, 'correction');
         
     function animate() {
     
