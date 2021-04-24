@@ -9,7 +9,7 @@ scene.background = new THREE.Color('black');
 
 
 const camera = new THREE.PerspectiveCamera(
-    75, window.innerWidth / window.innerHeight, 0.1, 1000
+    10, window.innerWidth / window.innerHeight, 0.1, 1000
 );
 
 // const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
@@ -46,61 +46,88 @@ function app() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    const light = new THREE.PointLight(0xff0000, 1, 100);
-    light.position.set(3, 1, 5);
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(4.5, 0, 0);
     scene.add(light);
 
     // const a_light = new THREE.AmbientLight(0x404040);
     // scene.add(a_light);
+    
+    const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
 
-    const geometry = new THREE.SphereGeometry(0.4, 32, 32);
-    const material = new THREE.MeshLambertMaterial({color: 0xff0000});
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.rotation.y = 0.4;
-    scene.add(sphere);
+    const sphere_0 = new THREE.Mesh(
+        new THREE.SphereGeometry(0.4, 32, 32),
+        red_material
+    );
+    // sphere_0.rotation.y = 0.4;
+    sphere_0.position.x = 2;
+    sphere_0.position.z = -5;
+    scene.add(sphere_0);
+    
+    const sphere_1 = new THREE.Mesh(
+        new THREE.SphereGeometry(0.4, 32, 32),
+        red_material
+    );
 
-    /*
-    let param = {
-        add_plane: () => {
-            let folder = gui.addFolder("plane" + plane_id);
-            plane_id++;
-
-            let uniforms = {
-                time: {value: 1.0},
-                backbuffer: {type: "t", value: null},
-                camera: {type: "t", value: null},
-                resolution: {value: [window.innerWidth, window.innerHeight]},
-                plane_id: {value: plane_id},
-                texture0: {type: "t", value: null},
-                texture1: {type: "t", value: null},
-                texture2: {type: "t", value: null},
-            };
-
-            let plane = add_plane(scene, backstage, folder, uniforms);
-            cbs.push(plane);
-            plane.update_material(editor.getValue());           
-        },
-        loaded: false,
-        plane_id: 0
-    };
-    */
+    sphere_1.position.x = 0;
+    sphere_1.position.z = -5;
+    scene.add(sphere_1);
+    
+    const green_material = new THREE.MeshLambertMaterial({
+        color: 0x00ff00,
+        side: THREE.DoubleSide
+    });
+    
+    const outer_sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(6, 32, 32),
+        green_material
+    );
+    // sphere.rotation.y = 0.4;
+    outer_sphere.position.x = 0;
+    
+    scene.add(outer_sphere);
 
     document.addEventListener('keydown', (event) => {
-        if(event.key === "F9") {
-            
+        console.log(event);
+        if(event.key === "Control") {
+            move_camera = true;
+            init_rotation = [camera.rotation.x, camera.rotation.y];
         }
     });
 
+    document.addEventListener('keyup', (event) => {
+        console.log(event);
+        if(event.key === "Control") {
+            move_camera = false;
+        }
+    });
+
+    let move_camera = false;
+    let mouse_init = [0, 0];
+    let init_rotation = [0, 0];
+
     window.addEventListener('mousedown', (evt) => {
-        let x = evt.pageX;
-        let y = evt.pageY;
+        
     });
     window.addEventListener('mousemove', (evt) => {
-
+        let x = (mouse_init[0] - evt.pageX) / rtWidth;
+        let y = (mouse_init[1] - evt.pageY) / rtHeight;
+        
+        if(move_camera) {
+            camera.rotation.x = y * 3 + init_rotation[0];
+            camera.rotation.y = x * 3 + init_rotation[1];
+        } else {
+            mouse_init = [evt.pageX, evt.pageY];
+        }
     });
     window.addEventListener('mouseup', (evt) => {
-
+        
     });
+
+    let param = {sphere_x: 0};
+    gui.add(param, 'sphere_x')
+        .min(-5).max(5).step(0.01)
+        .listen().onChange(value => outer_sphere.position.z = value);
 
     /*
     gui.add(param, "add_plane");
@@ -124,7 +151,7 @@ function app() {
 
     // console.log(test_texture);
 
-    camera.position.z = 5;
+    camera.position.z = 0;
 
 
     // param.add_plane();
