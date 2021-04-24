@@ -76,7 +76,7 @@ function game_init() {
         textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
         textureEquirec.encoding = THREE.sRGBEncoding;
 
-        const macht_geometry = new THREE.SphereGeometry(100, 32, 32, 0, Math.PI);
+        const macht_geometry = new THREE.SphereGeometry(1, 32, 32, 0, Math.PI);
         const macht_material = new THREE.MeshLambertMaterial({
             map: textureEquirec,
             side: THREE.DoubleSide
