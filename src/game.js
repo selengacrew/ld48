@@ -4,7 +4,6 @@ let ADD_NAME = 'assets/inside41.png';
 
 function set_active(name) {
     ADD_NAME = name;
-    // state.new_panorama = SELENGA_MAP[name]
     console.log('active: ', name);
 };
 
@@ -21,7 +20,7 @@ function game_update(t, dt, state) {
         (state.up - state.down) * dt * VELOCITY
     );
 
-    let min_distance = 1;
+    let min_distance = 1e308;
     // let min_id = null;
     let min_name = null;
 
@@ -43,10 +42,10 @@ function game_update(t, dt, state) {
             Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
             Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
             Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
-        if(distance < min_distance) {
+        if(distance < min_distance && name !== ADD_NAME) {
             min_distance = distance;
             min_name = name;
-            console.log("MIN: ", min_name)
+            // console.log("MIN: ", min_name)
         }
         // debugger;
         state.panorama[name].visible = false;
@@ -55,19 +54,20 @@ function game_update(t, dt, state) {
     if(!ADD_NEW) {
         state.panorama[min_name].visible = true;
     } else {
-        state.panorama[min_name].visible = true;
+        // state.panorama[min_name].visible = true;
 
         // console.log("panorama");
         state.panorama[min_name].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
+        // state.panorama[min_name].visible = true;
 
-        state.new_panorama = state.panorama[ADD_NAME];
-        state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
-
-        state.new_panorama.position.copy(state.camera.position);
-        state.new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
-        state.new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
-        state.new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
-        state.new_panorama.updateMatrix();
+        
+        let new_panorama = state.panorama[ADD_NAME];
+        new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > .5;
+        new_panorama.position.copy(state.camera.position);
+        new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
+        new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
+        new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
+        new_panorama.updateMatrix();
     }
 }
 
