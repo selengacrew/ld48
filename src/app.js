@@ -79,9 +79,6 @@ function app() {
         .listen().onChange(value => state.offset_z = value);
     
     gui_updater.push(
-        gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value))
-    );
-    gui_updater.push(
         gui.add(state, "min_distance")
     );
 

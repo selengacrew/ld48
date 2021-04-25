@@ -50,20 +50,15 @@ function game_update(t, dt, state) {
             state.panorama[min_name].scale.set(1, 1, -1);
         }
     } else {
- 
-        state.panorama[min_name].visible = (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
+        state.panorama[min_name].visible = true; //  (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
 
         let new_panorama = state.panorama[ADD_NAME];
-        new_panorama.visible = (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
+        new_panorama.visible = true; // (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
         new_panorama.position.copy(state.camera.position);
         new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
         new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
         new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
-        new_panorama.updateMatrix();
-
-        // debugger;
-
-        
+        new_panorama.updateMatrix(); 
     }
 }
 
@@ -166,7 +161,8 @@ function game_init(state) {
             vec4 origin_color = texture2D(texture0, vUv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
-            float fade = smoothstep(0.05, 0.5, opacity);
+            // float fade = smoothstep(0.05, 0.5, opacity);
+            float fade = 0.4;
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
 
