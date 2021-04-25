@@ -1,6 +1,6 @@
 
 const ADD_NEW = false;
-const ADD_NAME = 'assets/inside33.png';
+const ADD_NAME = 'assets/inside43.png';
 
 const VELOCITY = 1;
 
@@ -50,7 +50,7 @@ function game_init(state) {
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    state.camera.position.z = 0;
+    state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
     state.camera.rotation.order = 'YXZ';
 
     const listener = new THREE.AudioListener();
@@ -119,8 +119,10 @@ function game_init(state) {
     });
 
     // attached to camera
-    if(ADD_NEW) {
-        let texture = textureLoader.load(ADD_NAME);
+
+    state.addnew = function(filename) {
+
+        let texture = textureLoader.load(filename);
         texture.mapping = THREE.EquirectangularReflectionMapping;
         texture.encoding = THREE.sRGBEncoding;
 
@@ -136,6 +138,9 @@ function game_init(state) {
         state.scene.add(mesh);
         state.new_panorama = mesh;
     }
+
+    if (ADD_NEW)
+        state.addnew(ADD_NAME);
 
     // floor shader
 
