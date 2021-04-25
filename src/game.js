@@ -109,33 +109,6 @@ function game_init(state) {
 
     const textureLoader = new THREE.TextureLoader();
 
-    state.panorama = [];
-
-    // fixed panorama
-    SELENGA_MAP.forEach(map_tex => {
-        let texture = textureLoader.load(map_tex.name);
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        texture.encoding = THREE.sRGBEncoding;
-
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
-        const material = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            opacity: 0.99,
-            transparent: true
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = map_tex.position[0];
-        mesh.position.y = map_tex.position[1];
-        mesh.position.z = map_tex.position[2];
-        mesh.rotation.x = map_tex.rotation[0];
-        mesh.rotation.y = map_tex.rotation[1];
-        mesh.rotation.z = map_tex.rotation[2];
-        mesh.scale.set(1, 1, -1);
-        state.scene.add(mesh);
-        state.panorama.push(mesh);
-    });
-
     /*
     const sphere_vertex = vert`    
         varying vec2 vUv;
@@ -183,6 +156,33 @@ function game_init(state) {
         side: THREE.DoubleSide
     });
     */
+
+   state.panorama = [];
+
+    // fixed panorama
+    SELENGA_MAP.forEach(map_tex => {
+        let texture = textureLoader.load(map_tex.name);
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        texture.encoding = THREE.sRGBEncoding;
+
+        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
+        const material = new THREE.MeshLambertMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            opacity: 0.99,
+            transparent: true
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.x = map_tex.position[0];
+        mesh.position.y = map_tex.position[1];
+        mesh.position.z = map_tex.position[2];
+        mesh.rotation.x = map_tex.rotation[0];
+        mesh.rotation.y = map_tex.rotation[1];
+        mesh.rotation.z = map_tex.rotation[2];
+        mesh.scale.set(1, 1, -1);
+        state.scene.add(mesh);
+        state.panorama.push(mesh);
+    });
 
     // attached to camera
     state.addnew = function(filename) {
