@@ -86,6 +86,9 @@ function app() {
     let scenes_dropdown = gui.add(state, 'current_scene', Object.keys(SELENGA_MAP))
         .listen().onChange(value => set_active(value));
     // a.map((n) => { return " " + n + " " })
+    gui_updater.push(
+        gui.add(state, 'current_scene')
+    );
 
     let time = 0;
     let prev_time = (+new Date());

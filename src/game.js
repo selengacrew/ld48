@@ -1,5 +1,5 @@
 
-const ADD_NEW = true;
+const ADD_NEW = false;
 let ADD_NAME = 'assets/inside41.png';
 
 function set_active(name) {
@@ -36,7 +36,7 @@ function game_update(t, dt, state) {
         state.panorama[name].visible = false;
     });
 
-    state.current_scene = SELENGA_MAP[min_name].name;
+    state.current_scene = min_name;
     state.min_distance = min_distance;
 
     if(!ADD_NEW) {
