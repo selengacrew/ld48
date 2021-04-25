@@ -1,95 +1,119 @@
-const SELENGA_MAP = [
-    {
-        name: 'assets/inside23.png',
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-    },
-    // {
-    //     name: 'assets/inside24.png',
-    //     position: [-0.06599999999999984, 0, -0.6320000000000006],
-    //     rotation: [-0.6539856454962627, 1.1624262485449337, 0.6130588426999719]
-    // },
-    {
-        name: 'assets/inside24.png',
-        position: [-0.05, 0, -0.21800000000000014],
-        rotation: [-0.0865832826597991, 0.8361334988638326, 0.17432189717239394]
-    },
-    {
-        name: 'assets/inside25.png',
-        position: [-0.3010000000000001, 0, -0.5660000000000005],
-        rotation: [0.030452355901309444, 0.32211158523909716, 0.0774804988224572]
-    },
-    {
-        name: 'assets/inside30.png',
-        position: [-0.6840000000000004, 0, -1.056000000000001],
-        rotation: [-0.1584257511567848, -0.8357349324793446, -0.11796152778402962]
-    }, 
-    {
-        name: 'assets/inside31.png',
-        position: [-0.214, 0, -1.1330000000000013],
-        rotation: [-0.04270323711208573, -0.4736296877514686, -0.019487156489777006]
-    }, 
-    {
-        name: 'assets/inside32.png',
-        position: [0.27303090175658984, 0.026955763013414267, -1.3709450229877198],
-        rotation: [-0.0019999999999992632, 0.6100000000000066, 0.10999999999999996]
-    },
-    {
-        name: 'assets/inside33.png',
-        position: [0.06822330582316893, -0.062004167863164095, -1.6038383065061612],
-        rotation: [0.25799999999999684, 0.8279999999999947, -0.01999999999999947]
-    },
-    {
-        name: 'assets/inside34.png',
-        position: [-0.12972037889331273, 0.024425461582628913, -1.7770067486298269],
-        rotation: [0.44600000000000095, 1.319999999999989, -0.09000000000000152]
-    },
-    {
-        name: 'assets/inside41.png',
-        position: [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647],
-        rotation: [0.9819999999999957, 0.015999999999999747, -0.5699999999999948]
-    },
+SELENGA_MAP = {
+    'assets/inside1.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside10.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside12.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside14.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside15.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside17.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside19.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside2.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside20.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside21.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside22.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside23.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside24.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside25.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside26.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside27.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside28.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside30.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside31.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside32.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside33.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside34.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside4.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside41.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside43.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside44.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside5.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside6.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    'assets/inside9.png': {
+            position: [0, 0, 0],
+            rotation: [0, 0, 0]
+        },
+    };
     
-    // {
-    //     name: 'assets/inside43.png',
-    //     position: [-0.7548580853739058, 0.021365038245901094, -1.8944887318715395],
-    //     rotation: [0.29199999999999315, -0.027185307179615915, -0.020000000000001707]
-    // },
-    
-
-    // {
-    //     name: 'assets/inside25.png',
-    //     position: [-0.43600000000000005, 0.034, -0.9020000000000005],
-    //     rotation: [-0.6114587685570938, 0.6866966380226176, 0.418256355707212]
-    // // },
-    // {
-    //     name: 'assets/inside26.png',
-    //     position: [-0.5510000000000003, -0.38300000000000023, -0.9660000000000002],
-    //     rotation: [0.05921123145934849, 1.0392339307382494, -0.051056362379371806]
-    // },
-    // {
-    //     name: 'assets/inside27.png',
-    //     position: [-1.067, -0.5500000000000003, -1.2009999999999998],
-    //     rotation: [0.15707951233177103, 1.0929594440095385, -0.13972747001543132]
-    // },
-    // // {
-    //     name: 'assets/inside28.png',
-    //     position: [-1.6499999999999988, -0.5500000000000004, -1.271],
-    //     rotation: [0.05891957710034976, 0.489279160222634, -0.027716585981769848]
-    // },
-    // {
-    //     name: 'assets/inside30.png',
-    //     position: [-0.27600000000000047, -0.5460000000000003, -1.6749999999999987],
-    //     rotation: [-0.0008809282286540085, 1.1034951830185782, -0.5241174482362237]
-    // },
-    // {
-    //     name: 'assets/inside31.png',
-    //     position: [-1.0520000000000005, 0.117, -1.8549999999999989],
-    //     rotation: [-1.0456579657610598, 0.5671640092177793, 0.7476578619594764]
-    // },
-    // {
-    //     name: 'assets/inside32.png',
-    //     position: [-1.3809999999999996, 0, -1.9119999999999981],
-    //     rotation: [-1.4038801678029733, 0.7211250930875492, 1.3209394357844464]
-    
-];

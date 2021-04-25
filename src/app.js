@@ -77,12 +77,18 @@ function app() {
     gui.add(state, 'offset_z')
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_z = value);
+    
     gui_updater.push(
         gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value))
     );
     gui_updater.push(
         gui.add(state, "min_distance")
     );
+
+    // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
+    let scenes_dropdown = gui.add(state, 'current_scene', Object.keys(SELENGA_MAP))
+        .listen().onChange(value => set_active(value));
+    // a.map((n) => { return " " + n + " " })
 
     let time = 0;
     let prev_time = (+new Date());
@@ -101,9 +107,8 @@ function app() {
         // state.camera.updateProjectionMatrix();
         // console.log(state.camera);
         renderer.render(state.scene, state.camera);
-
         gui_updater.forEach(x => x.updateDisplay());
-
+        
         requestAnimationFrame(animate);   
     }
     

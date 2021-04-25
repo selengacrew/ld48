@@ -1,10 +1,17 @@
 
-const ADD_NEW = false;
-const ADD_NAME = 'assets/inside43.png';
+const ADD_NEW = true;
+let ADD_NAME = 'assets/inside41.png';
+
+function set_active(name) {
+    ADD_NAME = name;
+    console.log('active: ', name);
+};
 
 const VELOCITY = 1;
 
 function game_update(t, dt, state) {
+    
+    // console.log(state.new_panorama);
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
 
     state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
@@ -15,41 +22,48 @@ function game_update(t, dt, state) {
     );
 
     let min_distance = 1e308;
-    let min_id = null;
+    let min_name = null;
 
-    state.panorama.forEach((v, id) => {
+    Object.keys(state.panorama).forEach((name) => {
         let distance =
-            Math.pow(v.position.x - state.camera.position.x, 2) +
-            Math.pow(v.position.y - state.camera.position.y, 2) +
-            Math.pow(v.position.z - state.camera.position.z, 2);
-        if(distance < min_distance) {
+            Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
+            Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
+            Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
+        if(distance < min_distance && name !== ADD_NAME) {
             min_distance = distance;
-            min_id = id;
+            min_name = name;
         }
-        v.visible = false;
+        state.panorama[name].visible = false;
     });
-    state.current_scene = SELENGA_MAP[min_id].name;
+
+    state.current_scene = SELENGA_MAP[min_name].name;
     state.min_distance = min_distance;
 
     if(!ADD_NEW) {
-        state.panorama[min_id].visible = true;
-        state.panorama[min_id].material.uniforms.opacity.value = min_distance;
-        state.panorama[min_id].material.uniforms.time.value = t;
+        state.panorama[min_name].visible = true;
+        state.panorama[min_name].material.uniforms.opacity.value = min_distance;
+        state.panorama[min_name].material.uniforms.time.value = t;
         if(min_distance > 0.5) {
             let x = min_distance * 2;
-            state.panorama[min_id].scale.set(x, x, -x);
+            state.panorama[min_name].scale.set(x, x, -x);
         } else {
-            state.panorama[min_id].scale.set(1, 1, -1);
+            state.panorama[min_name].scale.set(1, 1, -1);
         }
     } else {
-        state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
-        state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
+ 
+        state.panorama[min_name].visible = (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
 
-        state.new_panorama.position.copy(state.camera.position);
-        state.new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
-        state.new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
-        state.new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
-        state.new_panorama.updateMatrix();
+        let new_panorama = state.panorama[ADD_NAME];
+        new_panorama.visible = (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
+        new_panorama.position.copy(state.camera.position);
+        new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
+        new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
+        new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
+        new_panorama.updateMatrix();
+
+        // debugger;
+
+        
     }
 }
 
@@ -60,7 +74,7 @@ function game_init(state) {
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
     state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
-    state.camera.rotation.order = 'YXZ';
+    state.camera.rotation.order = 'XYZ';
 
     const listener = new THREE.AudioListener();
     state.camera.add(listener);
@@ -161,12 +175,14 @@ function game_init(state) {
         }
     `;
 
-    state.panorama = [];
+    // state.panorama = [];
+    state.panorama = {};
+
 
     // fixed panorama
-    SELENGA_MAP.forEach(map_tex => {
+    Object.keys(SELENGA_MAP).forEach(name => {
         let sphere_uniforms = {
-            texture0: { type: "t", value: THREE.ImageUtils.loadTexture(map_tex.name)}, 
+            texture0: { type: "t", value: THREE.ImageUtils.loadTexture(name)}, 
             resolution: {value: [window.innerWidth, window.innerHeight]},
             opacity: {value: 1.0},
             time: {value: 0.0},
@@ -183,16 +199,18 @@ function game_init(state) {
 
         const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
         const mesh = new THREE.Mesh(geometry, sphere_shader);
-        mesh.position.x = map_tex.position[0];
-        mesh.position.y = map_tex.position[1];
-        mesh.position.z = map_tex.position[2];
-        mesh.rotation.x = map_tex.rotation[0];
-        mesh.rotation.y = map_tex.rotation[1];
-        mesh.rotation.z = map_tex.rotation[2];
+        mesh.position.x = SELENGA_MAP[name].position[0];
+        mesh.position.y = SELENGA_MAP[name].position[1];
+        mesh.position.z = SELENGA_MAP[name].position[2];
+        mesh.rotation.x = SELENGA_MAP[name].rotation[0];
+        mesh.rotation.y = SELENGA_MAP[name].rotation[1];
+        mesh.rotation.z = SELENGA_MAP[name].rotation[2];
         mesh.scale.set(1, 1, -1);
         state.scene.add(mesh);
-        state.panorama.push(mesh);
+        state.panorama[name] = mesh;
     });
+
+    state.new_panorama = state.panorama[1];
 
     // floor
     {
@@ -255,11 +273,10 @@ function game_init(state) {
             new THREE.SphereGeometry(0.4, 32, 32),
             floor_material,
         );
-        // sphere_0.rotation.y = 0.4;
+        
         sphere_0.position.x = 2;
         sphere_0.position.z = -5;
-        // state.scene.add(sphere_0);
-        // sphere_0.material = floor.material;
+        state.scene.add(sphere_0);
     }
 
     state.up = 0;
@@ -306,10 +323,19 @@ function game_handle_key(code, is_press, state) {
     }
 
     if(code == "KeyZ" && is_press) {
-        console.log(`{
-            name: '${ADD_NAME}',
-            position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
-            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
-        },`);
+        positions = "const SELENGA_MAP =  {"
+
+        Object.keys(state.panorama).forEach((name) => {
+            positions += `
+                "${name}": {
+                    position: [${state.panorama[name].position.x}, ${state.panorama[name].position.y}, ${state.panorama[name].position.z}],
+                    rotation: [${state.panorama[name].rotation.x}, ${state.panorama[name].rotation.y}, ${state.panorama[name].rotation.z}]
+                },
+            `;
+        });
+
+        positions += "};";
+        console.log(positions);
+    
     }
 }
