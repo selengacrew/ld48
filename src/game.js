@@ -109,7 +109,6 @@ function game_init(state) {
 
     const textureLoader = new THREE.TextureLoader();
 
-    /*
     const sphere_vertex = vert`    
         varying vec2 vUv;
         void main() {
@@ -139,40 +138,29 @@ function game_init(state) {
 
         void main() {
 
-        gl_FragColor = conv3x3(vUv, sobelX) + conv3x3(vUv, sobelY) + texture2D(texture0, vUv) * 0.;
+        gl_FragColor = conv3x3(vUv, sobelX) + conv3x3(vUv, sobelY) + texture2D(texture0, vUv) * 0.4;
 
         }
     `;
 
-    let sphere_uniforms = {
-        texture0: { type: "t", value: THREE.ImageUtils.loadTexture( "assets/inside15.png" )}, 
-        resolution: {value: [window.innerWidth, window.innerHeight]}
-    };
-
-    const sphere_shader = new THREE.ShaderMaterial({
-        uniforms: sphere_uniforms,
-        vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
-        fragmentShader: sphere_fragment[0],
-        side: THREE.DoubleSide
-    });
-    */
-
-   state.panorama = [];
+    state.panorama = [];
 
     // fixed panorama
     SELENGA_MAP.forEach(map_tex => {
-        let texture = textureLoader.load(map_tex.name);
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        texture.encoding = THREE.sRGBEncoding;
+        let sphere_uniforms = {
+            texture0: { type: "t", value: THREE.ImageUtils.loadTexture(map_tex.name)}, 
+            resolution: {value: [window.innerWidth, window.innerHeight]}
+        };
+    
+        const sphere_shader = new THREE.ShaderMaterial({
+            uniforms: sphere_uniforms,
+            vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
+            fragmentShader: sphere_fragment[0],
+            side: THREE.DoubleSide
+        });
 
         const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
-        const material = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            opacity: 0.99,
-            transparent: true
-        });
-        const mesh = new THREE.Mesh(geometry, material);
+        const mesh = new THREE.Mesh(geometry, sphere_shader);
         mesh.position.x = map_tex.position[0];
         mesh.position.y = map_tex.position[1];
         mesh.position.z = map_tex.position[2];
@@ -183,47 +171,6 @@ function game_init(state) {
         state.scene.add(mesh);
         state.panorama.push(mesh);
     });
-
-    // attached to camera
-    state.addnew = function(filename) {
-
-        let texture = textureLoader.load(filename);
-        texture.mapping = THREE.EquirectangularReflectionMapping;
-        texture.encoding = THREE.sRGBEncoding;
-
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
-        const material = new THREE.MeshLambertMaterial({
-            map: texture,
-            side: THREE.DoubleSide,
-            opacity: 0.99,
-            transparent: true
-        });
-
-        // const textureLoader = new THREE.TextureLoader();
-        // textureEquirec = textureLoader.load('assets/inside23.png');
-
-        // textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
-        // textureEquirec.encoding = THREE.sRGBEncoding;
-
-        const macht_geometry = new THREE.SphereGeometry(1, 32, 32, 0, Math.PI);
-        // const macht_material = new THREE.MeshLambertMaterial({
-        //     map: textureEquirec,
-        //     side: THREE.DoubleSide
-        // });
-        const macht_sphere = new THREE.Mesh(macht_geometry, sphere_shader);
-        macht_sphere.rotation.y = Math.PI;
-        macht_sphere.rotation.x = 0;
-        // macht_sphere.position.set(3, 3.3, -10);
-        let ssize = 8;
-        macht_sphere.scale.set(ssize, ssize, ssize);
-        state.macht_sphere = macht_sphere;
-
-        state.scene.add(macht_sphere);
-
-
-    if (ADD_NEW) {
-        state.addnew(ADD_NAME);
-    }
 
     // floor
     {
@@ -279,20 +226,19 @@ function game_init(state) {
         floor.position.set(0, -7, 0);
 
         state.scene.add(floor);
-    }
 
-
-    // fun
+        // fun
     
-    const sphere_0 = new THREE.Mesh(
-        new THREE.SphereGeometry(0.4, 32, 32),
-        floor_material,
-    );
-    // sphere_0.rotation.y = 0.4;
-    sphere_0.position.x = 2;
-    sphere_0.position.z = -5;
-    state.scene.add(sphere_0);
-    // sphere_0.material = floor.material;
+        const sphere_0 = new THREE.Mesh(
+            new THREE.SphereGeometry(0.4, 32, 32),
+            floor_material,
+        );
+        // sphere_0.rotation.y = 0.4;
+        sphere_0.position.x = 2;
+        sphere_0.position.z = -5;
+        state.scene.add(sphere_0);
+        // sphere_0.material = floor.material;
+    }
 
     state.up = 0;
     state.down = 0;
