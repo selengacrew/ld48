@@ -12,7 +12,12 @@ function app() {
 
     let locked = false;
 
-    state = game_init();
+    let state = {};
+    state.scene = new THREE.Scene();
+
+    state = game_init(state);
+
+    state.controls = new THREE.PointerLockControls(state.camera, document.body);
 
     function onWindowResize() {
         state.camera.aspect = window.innerWidth / window.innerHeight;
@@ -70,6 +75,7 @@ function app() {
     gui.add(state, 'offset_z')
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_z = value);
+    let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
 
     let time = 0;
     let prev_time = (+new Date());
@@ -89,6 +95,7 @@ function app() {
         // console.log(state.camera);
         renderer.render(state.scene, state.camera);
             
+        current_gui.updateDisplay();
         requestAnimationFrame(animate);   
     }
     
