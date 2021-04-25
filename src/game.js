@@ -5,10 +5,6 @@ const ADD_NAME = 'assets/inside43.png';
 const VELOCITY = 1;
 
 function game_update(t, dt, state) {
-    /*
-    
-    state.camera.position.z += -() * dt * 1;
-    */
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
 
     state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
