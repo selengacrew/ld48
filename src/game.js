@@ -7,7 +7,7 @@ function set_active(name) {
     console.log('active: ', name);
 };
 
-const VELOCITY = 1;
+const VELOCITY = 0.4;
 
 function game_update(t, dt, state) {
     
@@ -29,12 +29,17 @@ function game_update(t, dt, state) {
             Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
             Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
             Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
+
+        // distance += Math.pow(state.camera.rotation.y - state.panorama[name].rotation.y, 2) * 0.025;
+
         if(distance < min_distance && name !== ADD_NAME) {
             min_distance = distance;
             min_name = name;
         }
         state.panorama[name].visible = false;
     });
+
+    console.log(state.camera.rotation.z);
 
     state.current_scene = min_name;
     state.min_distance = min_distance;
@@ -201,6 +206,7 @@ function game_init(state) {
         mesh.rotation.x = SELENGA_MAP[name].rotation[0];
         mesh.rotation.y = SELENGA_MAP[name].rotation[1];
         mesh.rotation.z = SELENGA_MAP[name].rotation[2];
+        mesh.rotation.order = 'XYZ';
         mesh.scale.set(1, 1, -1);
         state.scene.add(mesh);
         state.panorama[name] = mesh;
