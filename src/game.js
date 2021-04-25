@@ -300,16 +300,19 @@ function game_handle_key(code, is_press, state) {
     }
 
     if(code == "KeyZ" && is_press) {
-        positions = ""
+        positions = "const SELENGA_MAP =  {"
 
         Object.keys(state.panorama).forEach((name) => {
-            positions += `{
-                ${name}: {
+            positions += `
+                "${name}": {
                     position: [${state.panorama[name].position.x}, ${state.panorama[name].position.y}, ${state.panorama[name].position.z}],
                     rotation: [${state.panorama[name].rotation.x}, ${state.panorama[name].rotation.y}, ${state.panorama[name].rotation.z}]
-                }
-            },`;
+                },
+            `;
         });
+
+        positions += "};";
         console.log(positions);
+    
     }
 }
