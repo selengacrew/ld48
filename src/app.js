@@ -66,6 +66,8 @@ function app() {
         
     });
 
+    let gui_updater = [];
+
     gui.add(state, 'offset_x')
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_x = value);
@@ -75,7 +77,12 @@ function app() {
     gui.add(state, 'offset_z')
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_z = value);
-    let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
+    gui_updater.push(
+        gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value))
+    );
+    gui_updater.push(
+        gui.add(state, "min_distance")
+    );
 
     let time = 0;
     let prev_time = (+new Date());
@@ -94,8 +101,9 @@ function app() {
         // state.camera.updateProjectionMatrix();
         // console.log(state.camera);
         renderer.render(state.scene, state.camera);
-            
-        current_gui.updateDisplay();
+
+        gui_updater.forEach(x => x.updateDisplay());
+
         requestAnimationFrame(animate);   
     }
     

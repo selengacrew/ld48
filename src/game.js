@@ -28,10 +28,19 @@ function game_update(t, dt, state) {
         }
         v.visible = false;
     });
-    state.current_scene = SELENGA_MAP[min_id].name;    
+    state.current_scene = SELENGA_MAP[min_id].name;
+    state.min_distance = min_distance;
 
     if(!ADD_NEW) {
         state.panorama[min_id].visible = true;
+        state.panorama[min_id].material.uniforms.opacity.value = min_distance;
+        state.panorama[min_id].material.uniforms.time.value = t;
+        if(min_distance > 0.5) {
+            let x = min_distance * 2;
+            state.panorama[min_id].scale.set(x, x, -x);
+        } else {
+            state.panorama[min_id].scale.set(1, 1, -1);
+        }
     } else {
         state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
         state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
@@ -45,7 +54,7 @@ function game_update(t, dt, state) {
 }
 
 function game_init(state) {
-    state.scene.background = new THREE.Color('purple');
+    state.scene.background = new THREE.Color('black');
 
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
@@ -122,6 +131,8 @@ function game_init(state) {
 
         uniform vec2 resolution;
         uniform sampler2D texture0;
+        uniform float opacity;
+        uniform float time;
 
         const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
         const mat3 sobelY = mat3(-1.0,-2.0,-1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0)/8.0;
@@ -137,8 +148,15 @@ function game_init(state) {
         }
 
         void main() {
+            vec2 wooUv = vUv * (1. + opacity * 0.02 * sin(10. * time + sin(vUv) * cos(vUv) * 20.));
+            vec4 origin_color = texture2D(texture0, vUv);
+            vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
-        gl_FragColor = conv3x3(vUv, sobelX) + conv3x3(vUv, sobelY) + texture2D(texture0, vUv) * 0.4;
+            float fade = smoothstep(0.05, 0.5, opacity);
+
+            vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
+
+            gl_FragColor = vec4(color.xyz, length(color.xyz) * origin_color.w);
 
         }
     `;
@@ -149,14 +167,18 @@ function game_init(state) {
     SELENGA_MAP.forEach(map_tex => {
         let sphere_uniforms = {
             texture0: { type: "t", value: THREE.ImageUtils.loadTexture(map_tex.name)}, 
-            resolution: {value: [window.innerWidth, window.innerHeight]}
+            resolution: {value: [window.innerWidth, window.innerHeight]},
+            opacity: {value: 1.0},
+            time: {value: 0.0},
         };
     
         const sphere_shader = new THREE.ShaderMaterial({
             uniforms: sphere_uniforms,
             vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
             fragmentShader: sphere_fragment[0],
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthWrite: false,
         });
 
         const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
@@ -225,7 +247,7 @@ function game_init(state) {
 
         floor.position.set(0, -7, 0);
 
-        state.scene.add(floor);
+        // state.scene.add(floor);
 
         // fun
     
@@ -236,7 +258,7 @@ function game_init(state) {
         // sphere_0.rotation.y = 0.4;
         sphere_0.position.x = 2;
         sphere_0.position.z = -5;
-        state.scene.add(sphere_0);
+        // state.scene.add(sphere_0);
         // sphere_0.material = floor.material;
     }
 
@@ -252,6 +274,8 @@ function game_init(state) {
     state.offset_z = 0;
 
     state.current_scene = "";
+
+    state.min_distance = 0.1;
 
     return state;
 }
