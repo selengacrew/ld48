@@ -10,6 +10,7 @@ function set_active(name) {
 const VELOCITY = 1;
 
 function game_update(t, dt, state) {
+    
     // console.log(state.new_panorama);
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
 
@@ -21,21 +22,7 @@ function game_update(t, dt, state) {
     );
 
     let min_distance = 1e308;
-    // let min_id = null;
     let min_name = null;
-
-    // state.panorama.forEach((v, id) => {
-    //     let distance =
-    //         Math.pow(v.position.x - state.camera.position.x, 2) +
-    //         Math.pow(v.position.y - state.camera.position.y, 2) +
-    //         Math.pow(v.position.z - state.camera.position.z, 2);
-    //     if(distance < min_distance) {
-    //         min_distance = distance;
-    //         min_id = id;
-    //     }
-    //     v.visible = false;
-    // });
-
 
     Object.keys(state.panorama).forEach((name) => {
         let distance =
@@ -45,29 +32,29 @@ function game_update(t, dt, state) {
         if(distance < min_distance && name !== ADD_NAME) {
             min_distance = distance;
             min_name = name;
-            // console.log("MIN: ", min_name)
         }
-        // debugger;
         state.panorama[name].visible = false;
     });
+
+    state.current_scene = min_name;
 
     if(!ADD_NEW) {
         state.panorama[min_name].visible = true;
     } else {
-        // state.panorama[min_name].visible = true;
+ 
+        state.panorama[min_name].visible = (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
 
-        // console.log("panorama");
-        state.panorama[min_name].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
-        // state.panorama[min_name].visible = true;
-
-        
         let new_panorama = state.panorama[ADD_NAME];
-        new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > .5;
+        new_panorama.visible = (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
         new_panorama.position.copy(state.camera.position);
         new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
         new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
         new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
         new_panorama.updateMatrix();
+
+        // debugger;
+
+        
     }
 }
 
@@ -78,7 +65,7 @@ function game_init(state) {
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
     state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
-    state.camera.rotation.order = 'YXZ';
+    state.camera.rotation.order = 'XYZ';
 
     const listener = new THREE.AudioListener();
     state.camera.add(listener);
@@ -203,9 +190,6 @@ function game_init(state) {
 
     state.new_panorama = state.panorama[1];
 
-
-    // debugger;
-
     // floor
     {
         const plane_vertex = vert`    
@@ -267,11 +251,11 @@ function game_init(state) {
             new THREE.SphereGeometry(0.4, 32, 32),
             floor_material,
         );
-        // sphere_0.rotation.y = 0.4;
+        
         sphere_0.position.x = 2;
         sphere_0.position.z = -5;
         state.scene.add(sphere_0);
-        // sphere_0.material = floor.material;
+        
     }
 
     state.up = 0;
@@ -315,11 +299,17 @@ function game_handle_key(code, is_press, state) {
         state.sound.play();
     }
 
-    // if(code == "KeyZ" && is_press) {
-    //     console.log(`{
-    //         name: '${ADD_NAME}',
-    //         position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
-    //         rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
-    //     },`);
-    // }
+    if(code == "KeyZ" && is_press) {
+        positions = ""
+
+        Object.keys(state.panorama).forEach((name) => {
+            positions += `{
+                ${name}: {
+                    position: [${state.panorama[name].position.x}, ${state.panorama[name].position.y}, ${state.panorama[name].position.z}],
+                    rotation: [${state.panorama[name].rotation.x}, ${state.panorama[name].rotation.y}, ${state.panorama[name].rotation.z}]
+                }
+            },`;
+        });
+        console.log(positions);
+    }
 }
