@@ -161,8 +161,8 @@ function game_init(state) {
             vec4 origin_color = texture2D(texture0, vUv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
-            // float fade = smoothstep(0.05, 0.5, opacity);
-            float fade = 0.4;
+            float fade = smoothstep(0.05, 0.5, opacity);
+            // float fade = 0.4;
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
 
