@@ -76,7 +76,7 @@ function app() {
         .min(-Math.PI).max(Math.PI).step(0.01)
         .listen().onChange(value => state.offset_z = value);
     // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
-    let scenes_dropdown = gui.add(state, 'current_scene', Object.keys(SELENGA_MAP)).listen().onChange(value => console.log(value));
+    let scenes_dropdown = gui.add(state, 'current_scene', Object.keys(SELENGA_MAP)).listen().onChange(value => set_active(value));
     // a.map((n) => { return " " + n + " " })
 
     let time = 0;

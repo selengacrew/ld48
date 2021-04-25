@@ -1,10 +1,10 @@
 
 const ADD_NEW = true;
-const ADD_NAME = 'assets/inside43.png';
+let ADD_NAME = 'assets/inside41.png';
 
 function set_active(name) {
     ADD_NAME = name;
-    state.new_panorama = SELENGA_MAP[name]
+    // state.new_panorama = SELENGA_MAP[name]
     console.log('active: ', name);
 };
 
@@ -21,26 +21,46 @@ function game_update(t, dt, state) {
         (state.up - state.down) * dt * VELOCITY
     );
 
-    let min_distance = 1e308;
-    let min_id = null;
+    let min_distance = 1;
+    // let min_id = null;
+    let min_name = null;
 
-    state.panorama.forEach((v, id) => {
+    // state.panorama.forEach((v, id) => {
+    //     let distance =
+    //         Math.pow(v.position.x - state.camera.position.x, 2) +
+    //         Math.pow(v.position.y - state.camera.position.y, 2) +
+    //         Math.pow(v.position.z - state.camera.position.z, 2);
+    //     if(distance < min_distance) {
+    //         min_distance = distance;
+    //         min_id = id;
+    //     }
+    //     v.visible = false;
+    // });
+
+
+    Object.keys(state.panorama).forEach((name) => {
         let distance =
-            Math.pow(v.position.x - state.camera.position.x, 2) +
-            Math.pow(v.position.y - state.camera.position.y, 2) +
-            Math.pow(v.position.z - state.camera.position.z, 2);
+            Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
+            Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
+            Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
         if(distance < min_distance) {
             min_distance = distance;
-            min_id = id;
+            min_name = name;
+            console.log("MIN: ", min_name)
         }
-        v.visible = false;
+        // debugger;
+        state.panorama[name].visible = false;
     });
-    // state.current_scene = SELENGA_MAP[min_id].name;    
 
     if(!ADD_NEW) {
-        state.panorama[min_id].visible = true;
+        state.panorama[min_name].visible = true;
     } else {
-        state.panorama[min_id].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
+        state.panorama[min_name].visible = true;
+
+        // console.log("panorama");
+        state.panorama[min_name].visible = (0.5 + Math.sin(t * 200) * 0.5) > 0.5;
+
+        state.new_panorama = state.panorama[ADD_NAME];
         state.new_panorama.visible = (1 - (0.5 + Math.sin(t * 200) * 0.5)) > 0.5;
 
         state.new_panorama.position.copy(state.camera.position);
@@ -150,9 +170,9 @@ function game_init(state) {
         }
     `;
 
-    state.panorama = [];
+    // state.panorama = [];
+    state.panorama = {};
 
-    // state.new_panorama = SELENGA_MAP[Object.keys(SELENGA_MAP)[0]];
 
     // fixed panorama
     Object.keys(SELENGA_MAP).forEach(name => {
@@ -178,8 +198,13 @@ function game_init(state) {
         mesh.rotation.z = SELENGA_MAP[name].rotation[2];
         mesh.scale.set(1, 1, -1);
         state.scene.add(mesh);
-        state.panorama.push(mesh);
+        state.panorama[name] = mesh;
     });
+
+    state.new_panorama = state.panorama[1];
+
+
+    // debugger;
 
     // floor
     {
@@ -290,11 +315,11 @@ function game_handle_key(code, is_press, state) {
         state.sound.play();
     }
 
-    if(code == "KeyZ" && is_press) {
-        console.log(`{
-            name: '${ADD_NAME}',
-            position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
-            rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
-        },`);
-    }
+    // if(code == "KeyZ" && is_press) {
+    //     console.log(`{
+    //         name: '${ADD_NAME}',
+    //         position: [${state.new_panorama.position.x}, ${state.new_panorama.position.y}, ${state.new_panorama.position.z}],
+    //         rotation: [${state.new_panorama.rotation.x}, ${state.new_panorama.rotation.y}, ${state.new_panorama.rotation.z}]
+    //     },`);
+    // }
 }
