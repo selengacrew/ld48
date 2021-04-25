@@ -1,10 +1,17 @@
 
-const ADD_NEW = false;
+const ADD_NEW = true;
 const ADD_NAME = 'assets/inside43.png';
+
+function set_active(name) {
+    ADD_NAME = name;
+    state.new_panorama = SELENGA_MAP[name]
+    console.log('active: ', name);
+};
 
 const VELOCITY = 1;
 
 function game_update(t, dt, state) {
+    // console.log(state.new_panorama);
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
 
     state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
@@ -28,7 +35,7 @@ function game_update(t, dt, state) {
         }
         v.visible = false;
     });
-    state.current_scene = SELENGA_MAP[min_id].name;    
+    // state.current_scene = SELENGA_MAP[min_id].name;    
 
     if(!ADD_NEW) {
         state.panorama[min_id].visible = true;
@@ -145,10 +152,12 @@ function game_init(state) {
 
     state.panorama = [];
 
+    // state.new_panorama = SELENGA_MAP[Object.keys(SELENGA_MAP)[0]];
+
     // fixed panorama
-    SELENGA_MAP.forEach(map_tex => {
+    Object.keys(SELENGA_MAP).forEach(name => {
         let sphere_uniforms = {
-            texture0: { type: "t", value: THREE.ImageUtils.loadTexture(map_tex.name)}, 
+            texture0: { type: "t", value: THREE.ImageUtils.loadTexture(name)}, 
             resolution: {value: [window.innerWidth, window.innerHeight]}
         };
     
@@ -161,12 +170,12 @@ function game_init(state) {
 
         const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
         const mesh = new THREE.Mesh(geometry, sphere_shader);
-        mesh.position.x = map_tex.position[0];
-        mesh.position.y = map_tex.position[1];
-        mesh.position.z = map_tex.position[2];
-        mesh.rotation.x = map_tex.rotation[0];
-        mesh.rotation.y = map_tex.rotation[1];
-        mesh.rotation.z = map_tex.rotation[2];
+        mesh.position.x = SELENGA_MAP[name].position[0];
+        mesh.position.y = SELENGA_MAP[name].position[1];
+        mesh.position.z = SELENGA_MAP[name].position[2];
+        mesh.rotation.x = SELENGA_MAP[name].rotation[0];
+        mesh.rotation.y = SELENGA_MAP[name].rotation[1];
+        mesh.rotation.z = SELENGA_MAP[name].rotation[2];
         mesh.scale.set(1, 1, -1);
         state.scene.add(mesh);
         state.panorama.push(mesh);
