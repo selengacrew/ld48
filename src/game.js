@@ -53,6 +53,21 @@ function game_init(state) {
     state.camera.position.z = 0;
     state.camera.rotation.order = 'YXZ';
 
+    const listener = new THREE.AudioListener();
+    state.camera.add(listener);
+    state.sound = new THREE.PositionalAudio(listener);
+    state.sound.panner.setPosition(0, 0, -1);
+    state.sound.setRolloffFactor(10); 
+    state.sound.setMaxDistance(0.1); 
+    state.sound.setDistanceModel("exponential");
+
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load( 'assets/sound.mp3', function(buffer) {
+        state.sound.setBuffer( buffer );
+        state.sound.setRefDistance(0.1);
+        // state.sound.play();
+    });
+
     const light = new THREE.PointLight(0xffffff, 1, 100);
     light.color.set('white');
     light.position.set(3, 1, 5);
@@ -63,25 +78,14 @@ function game_init(state) {
     state.scene.add(ambient);
     
     const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
-
-    {
-        const sphere_0 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 32, 32),
-            red_material
-        );
-        // sphere_0.rotation.y = 0.4;
-        sphere_0.position.x = 2;
-        sphere_0.position.z = -5;
-        // state.scene.add(sphere_0);
-    }
  
     {
         const sphere_1 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 32, 32),
+            new THREE.SphereGeometry(0.1, 32, 32),
             red_material
         );
         sphere_1.position.x = 0;
-        sphere_1.position.z = -5;
+        sphere_1.position.z = -1;
         state.scene.add(sphere_1);
     }
 
@@ -224,6 +228,10 @@ function game_handle_key(code, is_press, state) {
     }
     if(code === "KeyQ") {
         state.down = is_press ? 1 : 0;
+    }
+
+    if(code == "KeyF" && is_press) {
+        state.sound.play();
     }
 
     if(code == "KeyZ" && is_press) {
