@@ -73,8 +73,10 @@ function game_init(state) {
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
+    // state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
+    state.camera.position =[0., 0., 0.];
     state.camera.rotation.order = 'XYZ';
+
 
     const listener = new THREE.AudioListener();
     state.camera.add(listener);
@@ -162,8 +164,10 @@ function game_init(state) {
         }
 
         void main() {
-            vec2 wooUv = vUv * (1. + opacity * 0.02 * sin(10. * time + sin(vUv) * cos(vUv) * 20.));
-            vec4 origin_color = texture2D(texture0, vUv);
+            // vec2 uv = vec2(fract(vUv.x * 2.), vUv.y);
+            vec2 uv = vUv;
+            vec2 wooUv = uv * (1. + opacity * 0.02 * sin(10. * time + sin(uv) * cos(uv) * 20.));
+            vec4 origin_color = texture2D(texture0, uv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
             // float fade = smoothstep(0.05, 0.5, opacity);
@@ -172,6 +176,9 @@ function game_init(state) {
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
 
             gl_FragColor = vec4(color.xyz, length(color.xyz) * origin_color.w);
+            // gl_FragColor = vec4(color.xyz, origin_color.w);
+
+            // gl_FragColor = vec4(uv.x, 0., uv.y, 1.);
 
         }
     `;
@@ -198,7 +205,7 @@ function game_init(state) {
             depthWrite: false,
         });
 
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, Math.PI);
+        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, 1 * Math.PI);
         const mesh = new THREE.Mesh(geometry, sphere_shader);
         mesh.position.x = SELENGA_MAP[name].position[0];
         mesh.position.y = SELENGA_MAP[name].position[1];
@@ -259,15 +266,12 @@ function game_init(state) {
         });
 
         const floor_geometry = new THREE.PlaneGeometry(100, 100, 32 );
-        // const floor_geometry = new THREE.BoxGeometry( 1, 1, 1 );
-
         const floor = new THREE.Mesh(floor_geometry, floor_material);
         floor.rotation.x = - Math.PI / 2;
-        // floor.rotation.set(new THREE.Vector3( 0, 0, Math.PI / 1));
 
-        floor.position.set(0, -7, 0);
+        floor.position.set(0, -200, 0);
 
-        // state.scene.add(floor);
+        state.scene.add(floor);
 
         // fun
     
@@ -292,12 +296,16 @@ function game_init(state) {
     state.offset_y = 0;
     state.offset_z = 0;
 
-    state.current_scene = "";
+    // state.current_scene = "";
 
     state.min_distance = 0.1;
 
+    state.current_scene = 'assets/inside1.png';
+
     return state;
 }
+
+
 
 function game_handle_key(code, is_press, state) {
 
@@ -325,6 +333,7 @@ function game_handle_key(code, is_press, state) {
     }
 
     if(code == "KeyZ" && is_press) {
+        console.log("camera", state.camera.position);
         positions = "const SELENGA_MAP =  {"
 
         Object.keys(state.panorama).forEach((name) => {
