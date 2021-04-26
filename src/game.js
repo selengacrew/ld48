@@ -205,7 +205,7 @@ function game_init(state) {
             depthWrite: false,
         });
 
-        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, 1 * Math.PI);
+        const geometry = new THREE.SphereGeometry(1, 100, 100, 0, 2 * Math.PI);
         const mesh = new THREE.Mesh(geometry, sphere_shader);
         mesh.position.x = SELENGA_MAP[name].position[0];
         mesh.position.y = SELENGA_MAP[name].position[1];
