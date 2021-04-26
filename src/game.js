@@ -25,7 +25,7 @@ function game_update(t, dt, state) {
 
     let distance_items = Object.keys(state.panorama)
     .map(name => ({name, value: state.panorama[name]}))
-    .filter(item => item.name !== ADD_NAME)
+    .filter(item => (item.name !== ADD_NAME || !ADD_NEW))
     .map(item => {
         let distance =
             Math.pow(item.value.position.x - state.camera.position.x, 2) +
