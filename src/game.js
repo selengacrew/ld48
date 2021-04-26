@@ -168,8 +168,8 @@ function game_init(state) {
         }
 
         void main() {
-            // vec2 uv = vec2(fract(vUv.x * 2.), vUv.y);
-            vec2 uv = vUv;
+            vec2 uv = vec2(fract(vUv.x * 2.), vUv.y);
+            // vec2 uv = vec2(vUv;
             vec2 wooUv = uv * (1. + opacity * 0.02 * sin(10. * time + sin(uv) * cos(uv) * 20.));
             vec4 origin_color = texture2D(texture0, uv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
