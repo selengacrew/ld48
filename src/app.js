@@ -17,7 +17,9 @@ function app() {
 
     state = game_init(state);
 
-    state.controls = new THREE.PointerLockControls(state.camera, document.body);
+    // moved to game.js
+    // state.controls = new THREE.PointerLockControls(state.camera, document.body);
+    // // state.controls.poisiton = [0, 0, 0];
 
     function onWindowResize() {
         state.camera.aspect = window.innerWidth / window.innerHeight;

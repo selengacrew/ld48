@@ -24,29 +24,31 @@ function game_update(t, dt, state) {
     let min_distance = 1e308;
     let min_name = null;
 
+    let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
+
     Object.keys(state.panorama).forEach((name) => {
         let distance =
             Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
             Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
             Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
 
-        // distance += Math.pow(state.camera.rotation.y - state.panorama[name].rotation.y, 2) * 0.025;
+        let angle_distance = Math.pow(camera_yaw - state.panorama[name].rotation.reorder("XZY").y, 2);
+        distance += angle_distance / 100.;
 
         if(distance < min_distance && name !== ADD_NAME) {
             min_distance = distance;
             min_name = name;
         }
+
         state.panorama[name].visible = false;
     });
-
-    console.log(state.camera.rotation.z);
 
     state.current_scene = min_name;
     state.min_distance = min_distance;
 
     if(!ADD_NEW) {
         state.panorama[min_name].visible = true;
-        state.panorama[min_name].material.uniforms.opacity.value = min_distance;
+        state.panorama[min_name].material.uniforms.opacity.value = ADD_NEW ? 0.25 : min_distance;
         state.panorama[min_name].material.uniforms.time.value = t;
         if(min_distance > 0.5) {
             let x = min_distance * 2;
@@ -74,7 +76,7 @@ function game_init(state) {
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
     // state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
-    state.camera.position =[0., 0., 0.];
+    state.camera.position.set(0., 0., 0.);
     state.camera.rotation.order = 'XYZ';
 
 
@@ -83,7 +85,7 @@ function game_init(state) {
     state.sound = new THREE.PositionalAudio(listener);
     state.sound.panner.setPosition(0, 0, -1);
     state.sound.setRolloffFactor(10); 
-    state.sound.setMaxDistance(0.1); 
+    state.sound.setMaxDistance(0.1);
     state.sound.setDistanceModel("exponential");
 
     const audioLoader = new THREE.AudioLoader();
@@ -98,8 +100,6 @@ function game_init(state) {
     light.color.set('white');
     light.position.set(3, 1, 5);
     state.scene.add(light);
-    
-
     
     const ambient = new THREE.AmbientLight(0x010101, 0.4);
     ambient.color.set('white');
@@ -120,7 +120,11 @@ function game_init(state) {
         // scene.add(outer_sphere);
     }
 
-    const red_material = new THREE.MeshLambertMaterial({color: 0xff0000});
+    const red_material = new THREE.MeshLambertMaterial({
+        color: 0xff0000,
+        transparent: true,
+        opacity: 0.3,
+    });
  
     {
         const sphere_1 = new THREE.Mesh(
@@ -170,15 +174,11 @@ function game_init(state) {
             vec4 origin_color = texture2D(texture0, uv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
-            // float fade = smoothstep(0.05, 0.5, opacity);
-            float fade = 0.4;
+            float fade = smoothstep(0.05, 0.5, opacity);
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
 
-            gl_FragColor = vec4(color.xyz, length(color.xyz) * origin_color.w);
-            // gl_FragColor = vec4(color.xyz, origin_color.w);
-
-            // gl_FragColor = vec4(uv.x, 0., uv.y, 1.);
+            gl_FragColor = vec4(color.xyz, origin_color.w);
 
         }
     `;
@@ -217,6 +217,17 @@ function game_init(state) {
         mesh.scale.set(1, 1, -1);
         state.scene.add(mesh);
         state.panorama[name] = mesh;
+
+        const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(0.02, 32, 32),
+            red_material
+        );
+
+        sphere.position.x = SELENGA_MAP[name].position[0];
+        sphere.position.y = SELENGA_MAP[name].position[1];
+        sphere.position.z = SELENGA_MAP[name].position[2];
+
+        state.scene.add(sphere);
     });
 
     state.new_panorama = state.panorama[1];
@@ -299,8 +310,19 @@ function game_init(state) {
     // state.current_scene = "";
 
     state.min_distance = 0.1;
+    state.min_angle_distance = 0.1;
 
     state.current_scene = 'assets/inside1.png';
+
+    // controller 
+    state.controls = new THREE.PointerLockControls(state.camera, document.body);
+    // state.controls.poisiton = [0., 0., 0.];
+
+        
+    console.log("camera", state.camera.position);
+    state.controls.getObject().position.x = 0.;
+    state.controls.getObject().position.y = 0.;
+    state.controls.getObject().position.z = 0.;
 
     return state;
 }
@@ -333,7 +355,6 @@ function game_handle_key(code, is_press, state) {
     }
 
     if(code == "KeyZ" && is_press) {
-        console.log("camera", state.camera.position);
         positions = "const SELENGA_MAP =  {"
 
         Object.keys(state.panorama).forEach((name) => {
@@ -345,8 +366,9 @@ function game_handle_key(code, is_press, state) {
             `;
         });
 
-        positions += "};";
-        console.log(positions);
-    
+        positions += "};";    
+        console.log(positions);   
+        console.log(state.camera.position);     
+        console.log(state.controls.getObject().position);
     }
 }
