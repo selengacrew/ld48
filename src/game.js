@@ -21,43 +21,42 @@ function game_update(t, dt, state) {
         (state.up - state.down) * dt * VELOCITY
     );
 
-    let min_distance = 1e308;
-    let min_name = null;
-
     let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
 
-    Object.keys(state.panorama).forEach((name) => {
+    let distance_items = Object.keys(state.panorama)
+    .map(name => ({name, value: state.panorama[name]}))
+    .filter(item => item.name !== ADD_NAME)
+    .map(item => {
         let distance =
-            Math.pow(state.panorama[name].position.x - state.camera.position.x, 2) +
-            Math.pow(state.panorama[name].position.y - state.camera.position.y, 2) +
-            Math.pow(state.panorama[name].position.z - state.camera.position.z, 2);
+            Math.pow(item.value.position.x - state.camera.position.x, 2) +
+            Math.pow(item.value.position.y - state.camera.position.y, 2) +
+            Math.pow(item.value.position.z - state.camera.position.z, 2);
 
-        let angle_distance = Math.pow(camera_yaw - state.panorama[name].rotation.reorder("XZY").y, 2);
+        let angle_distance = Math.pow(camera_yaw - item.value.rotation.reorder("XZY").y, 2);
         distance += angle_distance / 100.;
 
-        if(distance < min_distance && name !== ADD_NAME) {
-            min_distance = distance;
-            min_name = name;
-        }
+        return {name: item.name, distance};
+    })
+    .sort((a, b) => a.distance - b.distance);
 
-        state.panorama[name].visible = false;
-    });
+    state.current_scene = distance_items[0].name;
+    state.min_distance = distance_items[0].distance;
 
-    state.current_scene = min_name;
-    state.min_distance = min_distance;
+    Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = false;});
 
+    let near_item = state.panorama[distance_items[0].name];
     if(!ADD_NEW) {
-        state.panorama[min_name].visible = true;
-        state.panorama[min_name].material.uniforms.opacity.value = ADD_NEW ? 0.25 : min_distance;
-        state.panorama[min_name].material.uniforms.time.value = t;
-        if(min_distance > 0.5) {
-            let x = min_distance * 2;
-            state.panorama[min_name].scale.set(x, x, -x);
+        near_item.visible = true;
+        near_item.material.uniforms.opacity.value = ADD_NEW ? 0.25 : state.min_distance;
+        near_item.material.uniforms.time.value = t;
+        if(state.min_distance > 0.5) {
+            let x = state.min_distance * 2;
+            near_item.scale.set(x, x, -x);
         } else {
-            state.panorama[min_name].scale.set(1, 1, -1);
+            near_item.scale.set(1, 1, -1);
         }
     } else {
-        state.panorama[min_name].visible = true; //  (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
+        near_item.visible = true; //  (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
 
         let new_panorama = state.panorama[ADD_NAME];
         new_panorama.visible = true; // (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
