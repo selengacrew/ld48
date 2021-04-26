@@ -45,17 +45,18 @@ function game_update(t, dt, state) {
     Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = false;});
 
     let near_item = state.panorama[distance_items[0].name];
-    if(!ADD_NEW) {
-        near_item.visible = true;
-        near_item.material.uniforms.opacity.value = ADD_NEW ? 0.25 : state.min_distance;
-        near_item.material.uniforms.time.value = t;
-        if(state.min_distance > 0.5) {
-            let x = state.min_distance * 2;
-            near_item.scale.set(x, x, -x);
-        } else {
-            near_item.scale.set(1, 1, -1);
-        }
+
+    near_item.visible = true;
+    near_item.material.uniforms.opacity.value = ADD_NEW ? 0.25 : state.min_distance;
+    near_item.material.uniforms.time.value = t;
+    if(state.min_distance > 0.5) {
+        let x = state.min_distance * 2;
+        near_item.scale.set(x, x, -x);
     } else {
+        near_item.scale.set(1, 1, -1);
+    }
+
+    if(ADD_NEW) {
         near_item.visible = true; //  (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
 
         let new_panorama = state.panorama[ADD_NAME];
