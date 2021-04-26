@@ -157,28 +157,48 @@ function game_init(state) {
         const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
         const mat3 sobelY = mat3(-1.0,-2.0,-1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0)/8.0;
 
-        vec4 conv3x3(vec2 uv, mat3 fil) {
-            vec4 a = vec4(0.0);
+        vec3 conv3x3(vec2 uv, mat3 fil) {
+            vec3 a = vec3(0.0);
             for (int y=0; y<3; ++y)
             for (int x=0; x<3; ++x) {
               vec2 p = uv * resolution + vec2(float(x-1), float(y-1));
-              a += fil[y][x] * texture2D(texture0, p / resolution);
+              a += fil[y][x] * texture2D(texture0, p / resolution).xyz;
             }
             return a;
         }
 
+        float circle(vec2 uv, float r) {
+            return length(uv) - pow(r, 2.); 
+        }
+
         void main() {
             vec2 uv = vec2(fract(vUv.x * 2.), vUv.y);
-            // vec2 uv = vec2(vUv;
+            vec2 buv = vec2(vUv.x / 2., vUv.y);
+            
             vec2 wooUv = uv * (1. + opacity * 0.02 * sin(10. * time + sin(uv) * cos(uv) * 20.));
             vec4 origin_color = texture2D(texture0, uv);
-            vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
+            vec3 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
             float fade = smoothstep(0.05, 0.5, opacity);
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
+            // vec3 backcolor = color * vec3(buv, 1.);
+            vec3 backcolor = texture2D(texture0, vec2(1.-uv.x, uv.y)).xyz;
 
-            gl_FragColor = vec4(color.xyz, origin_color.w);
+            // debug
+            // color = vec3(uv.x, 0, uv.y);
+            // backcolor = color + vec3(0., .1 ,0.);
+
+
+            float offset = .4;
+            gl_FragColor = vUv.x < .5? vec4(color.xyz, origin_color.w): vec4(backcolor, 1.);
+            // - (pow(buv.x + offset, 2.) + pow(buv.y + offset, 2.)) ); 
+
+            gl_FragColor = vUv.y > 0.1 ? gl_FragColor : vec4(0.);
+            gl_FragColor = vUv.y < 0.9 ? gl_FragColor : vec4(0.);
+
+
+            // gl_FragColor = vec4(vUv.x * 0., 0., vUv.y, 1.);
 
         }
     `;
