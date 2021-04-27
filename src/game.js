@@ -272,7 +272,7 @@ function game_init(state) {
 
         });
 
-        const floor_geometry = new THREE.PlaneGeometry(1, 1, 1 );
+        const floor_geometry = new THREE.PlaneGeometry(2, 2, 2 );
         const floor = new THREE.Mesh(floor_geometry, floor_material);
         floor.rotation.x = - Math.PI / 2;
         state.scene.add(floor);
