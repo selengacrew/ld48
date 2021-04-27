@@ -63,20 +63,12 @@ function game_update(t, dt, state) {
         near_item.material.uniforms.dist.value = state.add_new ? 0. : item.distance;
         near_item.material.uniforms.diff_dist.value = state.add_new ? 1. : diff_distance;
         near_item.material.uniforms.opacity.value = state.add_new ? Math.sin(t * 10.) * .5 + 1 : 1.;
-        near_item.material.uniforms.angle_dist.value = (
-            Math.pow(
-                state.camera.rotation.x -
-                near_item.rotation.x
-            , 2) +
-            Math.pow(
-                state.camera.rotation.y -
-                near_item.rotation.y
-            , 2) +
-            Math.pow(
-                state.camera.rotation.z -
-                near_item.rotation.z
-            , 2)
-        ) / 3;
+
+        let near_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(near_item.rotation);
+        let camera_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(state.camera.rotation);
+
+        near_item.material.uniforms.angle_dist.value = camera_lookat.angleTo(near_lookat);
+
         near_item.material.uniforms.time.value = t;
         if(item.distance > 0.5) {
             let x = item.distance * 2;
@@ -109,7 +101,6 @@ function game_update(t, dt, state) {
     });
 
     if(state.add_new) {
-
         let new_panorama = state.panorama[ADD_NAME];
         new_panorama.material.uniforms.opacity.value = -Math.sin(t * 10.) * .5 + 1; 
         new_panorama.material.uniforms.dist.value = 0.;
@@ -121,8 +112,6 @@ function game_update(t, dt, state) {
         new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
         new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
         new_panorama.updateMatrix(); 
-
-
     }
 
     
@@ -240,7 +229,7 @@ function game_init(state) {
                 fract(vUv.y + uv.x * sin(uv.x + sin(time * 2.4 + uv.y * 100.) * 0.2) * cos(vUv.x * 0.2 - cos(time * 1.9 + uv.x * 320.) * 0.3))
             , uv.y), gauss))) * 20.;
 
-            float angle_fade = smoothstep(2.3, 8., angle_dist);
+            float angle_fade = smoothstep(1.5, 2.6, angle_dist);
 
             // smooth fade
             backcolor *= smoothstep(0.01, 0.2, pow((vUv.x - 0.75) * 2., 2.) + pow(vUv.y - 0.5, 2.));
