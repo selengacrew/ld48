@@ -1,6 +1,6 @@
 
-const ADD_NEW = false;
-let ADD_NAME = 'assets/inside1.png';
+let ADD_NEW = true;
+let ADD_NAME = 'assets/inside47.png';
 
 function set_active(name) {
     ADD_NAME = name;
@@ -21,7 +21,7 @@ function game_update(t, dt, state) {
         (state.up - state.down) * dt * VELOCITY
     );
 
-    let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
+    let camera_yaw = state.camera.clone().rotation.reorder("XYZ").y;
 
     let distance_items = Object.keys(state.panorama)
     .map(name => ({name, value: state.panorama[name]}))
@@ -32,7 +32,7 @@ function game_update(t, dt, state) {
             Math.pow(item.value.position.y - state.camera.position.y, 2) +
             Math.pow(item.value.position.z - state.camera.position.z, 2);
 
-        let angle_distance = Math.pow(camera_yaw - item.value.rotation.reorder("XZY").y, 2);
+        let angle_distance = Math.pow(camera_yaw - item.value.rotation.reorder("XYZ").y, 2);
         distance += angle_distance / 100.;
 
         return {name: item.name, distance};
@@ -70,15 +70,16 @@ function game_update(t, dt, state) {
         new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
         new_panorama.updateMatrix(); 
     }
+
+    
 }
 
 function game_init(state) {
-    state.scene.background = new THREE.Color('black');
+    state.scene.background = new THREE.Color('purple');
 
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
-    // state.camera.position = [-0.8606581746217031, -0.04694518939653785, -2.0944195266261647];
     state.camera.position.set(0., 0., 0.);
     state.camera.rotation.order = 'XYZ';
 
@@ -107,21 +108,6 @@ function game_init(state) {
     const ambient = new THREE.AmbientLight(0x010101, 0.4);
     ambient.color.set('white');
     state.scene.add(ambient);
-
-    {
-        const green_material = new THREE.MeshLambertMaterial({
-            color: 0x00ff00,
-            side: THREE.DoubleSide
-        });
-        
-        const outer_sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(6, 32, 32),
-            green_material
-        );
-        // sphere.rotation.y = 0.4;
-        outer_sphere.position.x = 0;
-        // scene.add(outer_sphere);
-    }
 
     const red_material = new THREE.MeshLambertMaterial({
         color: 0xff0000,
@@ -184,6 +170,7 @@ function game_init(state) {
             vec2 wooUv = uv * (1. + distance * 0.02 * sin(10. * time + sin(uv) * cos(uv) * 20.));
             vec4 origin_color = texture2D(texture0, uv);
             vec3 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
+            sobel_color += origin_color.xyz;
 
             float fade = smoothstep(0.05, 0.5, distance);
             float opacity_fade = smoothstep(0.01, 0.05, diff_distance) + 0.5;
@@ -197,12 +184,12 @@ function game_init(state) {
             // smooth fade
             backcolor *= vec3(1. - sin((uv.x) *3.));
 
-            gl_FragColor = vUv.x < .5? vec4(color.xyz, opacity_fade * origin_color.w): vec4(backcolor, 1.);
+            // gl_FragColor = vUv.x < .5? vec4(color.xyz, opacity_fade * origin_color.w): vec4(backcolor, 1.);
+            gl_FragColor = vUv.x < .5? vec4(color.xyz, .5): vec4(backcolor, .5);
+
             gl_FragColor = vUv.y > 0.1 ? gl_FragColor : vec4(0.);
             gl_FragColor = vUv.y < 0.9 ? gl_FragColor : vec4(0.);
 
-            // for debug
-            // gl_FragColor = vec4(vUv.x * 0., 0., vUv.y, 1.);
         }
     `;
 
@@ -332,22 +319,17 @@ function game_init(state) {
     state.offset_y = 0;
     state.offset_z = 0;
 
-    // state.current_scene = "";
-
     state.min_distance = 0.1;
     state.min_angle_distance = 0.1;
 
-    state.current_scene = 'assets/inside1.png';
+    state.current_scene = 'assets/inside41.png';
+    let current_position = state.panorama[state.current_scene].position;
 
     // controller 
     state.controls = new THREE.PointerLockControls(state.camera, document.body);
-    // state.controls.poisiton = [0., 0., 0.];
-
-        
-    console.log("camera", state.camera.position);
-    state.controls.getObject().position.x = 0.;
-    state.controls.getObject().position.y = 0.;
-    state.controls.getObject().position.z = 0.;
+    state.controls.getObject().position.x = current_position.x;
+    state.controls.getObject().position.y = current_position.y;
+    state.controls.getObject().position.z = current_position.z;
 
     return state;
 }
@@ -392,8 +374,10 @@ function game_handle_key(code, is_press, state) {
         });
 
         positions += "};";    
-        console.log(positions);   
-        console.log(state.camera.position);     
-        console.log(state.controls.getObject().position);
+
+        console.log(state.camera.rotation);
+        console.log(state.panorama[state.current_scene].rotation);
+        // console.log(positions);
+        
     }
 }
