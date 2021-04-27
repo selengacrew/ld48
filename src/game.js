@@ -44,23 +44,26 @@ function game_update(t, dt, state) {
 
     Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = false;});
 
-    let near_item = state.panorama[distance_items[0].name];
+    let diff_distance = Math.abs(distance_items[0].distance - distance_items[1].distance);
+    
+    distance_items.slice(0, 1).forEach(item => {
+        let near_item = state.panorama[item.name];
 
-    near_item.visible = true;
-    near_item.material.uniforms.opacity.value = ADD_NEW ? 0.25 : state.min_distance;
-    near_item.material.uniforms.time.value = t;
-    if(state.min_distance > 0.5) {
-        let x = state.min_distance * 2;
-        near_item.scale.set(x, x, -x);
-    } else {
-        near_item.scale.set(1, 1, -1);
-    }
+        near_item.visible = true;
+        near_item.material.uniforms.distance.value = ADD_NEW ? 0.25 : item.distance;
+        near_item.material.uniforms.diff_distance.value = diff_distance;
+        near_item.material.uniforms.time.value = t;
+        if(item.distance > 0.5) {
+            let x = item.distance * 2;
+            near_item.scale.set(x, x, -x);
+        } else {
+            near_item.scale.set(1, 1, -1);
+        }
+    });
 
     if(ADD_NEW) {
-        near_item.visible = true; //  (0.5 + Math.sin(t * 100) * 0.5) > 0.5;
-
         let new_panorama = state.panorama[ADD_NAME];
-        new_panorama.visible = true; // (1 - (0.5 + Math.sin(t * 100) * 0.5)) > .5;
+        new_panorama.visible = true;
         new_panorama.position.copy(state.camera.position);
         new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
         new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
@@ -149,7 +152,8 @@ function game_init(state) {
 
         uniform vec2 resolution;
         uniform sampler2D texture0;
-        uniform float opacity;
+        uniform float distance;
+        uniform float diff_distance;
         uniform float time;
 
         const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
@@ -166,15 +170,16 @@ function game_init(state) {
         }
 
         void main() {
-            vec2 wooUv = vUv * (1. + opacity * 0.02 * sin(10. * time + sin(vUv) * cos(vUv) * 20.));
+            vec2 wooUv = vUv * (1. + distance * 0.02 * sin(10. * time + sin(vUv) * cos(vUv) * 20.));
             vec4 origin_color = texture2D(texture0, vUv);
             vec4 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
 
-            float fade = smoothstep(0.05, 0.5, opacity);
+            float fade = smoothstep(0.05, 0.5, distance);
+            float opacity_fade = smoothstep(0.01, 0.05, diff_distance) + 0.5;
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
 
-            gl_FragColor = vec4(color.xyz, origin_color.w);
+            gl_FragColor = vec4(color.xyz, opacity_fade * origin_color.w);
 
         }
     `;
@@ -188,7 +193,8 @@ function game_init(state) {
         let sphere_uniforms = {
             texture0: { type: "t", value: THREE.ImageUtils.loadTexture(name)}, 
             resolution: {value: [window.innerWidth, window.innerHeight]},
-            opacity: {value: 1.0},
+            distance: {value: 1.0},
+            diff_distance: {value: 1.0},
             time: {value: 0.0},
         };
     
@@ -198,6 +204,7 @@ function game_init(state) {
             fragmentShader: sphere_fragment[0],
             side: THREE.DoubleSide,
             transparent: true,
+            depthTest: false,
             depthWrite: false,
         });
 
@@ -281,7 +288,7 @@ function game_init(state) {
 
         floor.position.set(0, -7, 0);
 
-        state.scene.add(floor);
+        // state.scene.add(floor);
 
         // fun
     
