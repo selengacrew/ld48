@@ -94,7 +94,11 @@ function app() {
         .listen().onChange(value => set_active(value))
     );
 
-    gui.add(state, 'add_new').listen().onChange(value => {state.add_new = value;});
+    gui.add(state, 'add_new').listen().onChange(value => {state.add_new = value;});  
+    
+    gui_updater.push(
+        gui.add(state, "min_angle_distance")
+    );
 
     // a.map((n) => { return " " + n + " " })
 

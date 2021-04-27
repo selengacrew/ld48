@@ -1,6 +1,6 @@
 
-let ADD_NAME = 'assets/inside10.png';
-let START_NAME = 'assets/inside1.png';
+let ADD_NAME = 'assets/inside45.png';
+let START_NAME = 'assets/inside47.png';
 
 function set_active(name) {
     ADD_NAME = name;
@@ -46,6 +46,9 @@ function game_update(t, dt, state) {
     })
     .sort((a, b) => a.distance - b.distance);
 
+    if (state.current_scene !== distance_items[0].name) {
+        console.log("CURRENT SCENE CHANGED", distance_items)
+    }
     state.current_scene = distance_items[0].name;
     state.min_distance = distance_items[0].distance;
 
@@ -57,8 +60,8 @@ function game_update(t, dt, state) {
         let near_item = state.panorama[item.name];
 
         near_item.visible = true;
-        near_item.material.uniforms.dist.value = item.distance;
-        near_item.material.uniforms.diff_dist.value = diff_distance;
+        near_item.material.uniforms.dist.value = state.add_new ? 0. : item.distance;
+        near_item.material.uniforms.diff_dist.value = state.add_new ? 1. : diff_distance;
         near_item.material.uniforms.opacity.value = state.add_new ? Math.sin(t * 10.) * .5 + 1 : 1.;
         near_item.material.uniforms.angle_dist.value = (
             Math.pow(
@@ -82,29 +85,35 @@ function game_update(t, dt, state) {
             near_item.scale.set(1, 1, -1);
         }
 
+        state.min_angle_distance = near_item.material.uniforms.angle_dist.value;
+
         // tension
-        if(all_velocity > 0) {
-            state.controls.getObject().position.x += 
-                (near_item.position.x - state.camera.position.x) * dt * TENSION;
-            state.controls.getObject().position.y += 
-                (near_item.position.y - state.camera.position.y) * dt * TENSION;
-            
-            state.controls.getObject().position.z += 
-                (near_item.position.z - state.camera.position.z) * dt * TENSION_Z;
-        } else {
-            state.controls.getObject().position.x += 
-                (near_item.position.x - state.camera.position.x) * dt * TENSION_RELAX;
-            state.controls.getObject().position.y += 
-                (near_item.position.y - state.camera.position.y) * dt * TENSION_RELAX;
-            state.controls.getObject().position.z += 
-                (near_item.position.z - state.camera.position.z) * dt * TENSION_RELAX;
+        if (!state.new_scene) {
+            if(all_velocity > 0) {
+                state.controls.getObject().position.x += 
+                    (near_item.position.x - state.camera.position.x) * dt * TENSION;
+                state.controls.getObject().position.y += 
+                    (near_item.position.y - state.camera.position.y) * dt * TENSION;
+                
+                state.controls.getObject().position.z += 
+                    (near_item.position.z - state.camera.position.z) * dt * TENSION_Z;
+            } else {
+                state.controls.getObject().position.x += 
+                    (near_item.position.x - state.camera.position.x) * dt * TENSION_RELAX;
+                state.controls.getObject().position.y += 
+                    (near_item.position.y - state.camera.position.y) * dt * TENSION_RELAX;
+                state.controls.getObject().position.z += 
+                    (near_item.position.z - state.camera.position.z) * dt * TENSION_RELAX;
+            }
         }
     });
 
     if(state.add_new) {
 
         let new_panorama = state.panorama[ADD_NAME];
-        new_panorama.material.uniforms.opacity.value = -Math.sin(t * 10.) * .5 + 1;
+        new_panorama.material.uniforms.opacity.value = -Math.sin(t * 10.) * .5 + 1; 
+        new_panorama.material.uniforms.dist.value = 0.;
+        new_panorama.material.uniforms.diff_dist.value = 1.;
 
         new_panorama.visible = true;
         new_panorama.position.copy(state.camera.position);
@@ -112,6 +121,8 @@ function game_update(t, dt, state) {
         new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
         new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
         new_panorama.updateMatrix(); 
+
+
     }
 
     
@@ -379,6 +390,7 @@ function game_init(state) {
 
     state.min_distance = 0.1;
     state.min_angle_distance = 0.1;
+    
 
     state.current_scene = START_NAME;
     state.new_scene = ADD_NAME;
@@ -391,6 +403,7 @@ function game_init(state) {
     state.controls.getObject().position.z = current_position.z;
 
     state.add_new = false;
+
 
     return state;
 }
@@ -435,12 +448,8 @@ function game_handle_key(code, is_press, state) {
         });
 
         positions += "};";    
-
-        console.log(state.camera.rotation);
-        console.log(state.panorama[state.current_scene].rotation);
-
-        console.log("POSITION", state.camera.position);
-        // console.log(positions);
+   
+        console.log(positions);
         
     }
 }
