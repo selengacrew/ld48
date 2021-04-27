@@ -156,6 +156,8 @@ function game_init(state) {
 
         const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
         const mat3 sobelY = mat3(-1.0,-2.0,-1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0)/8.0;
+        const mat3 gauss = mat3(1.0, 2.0, 1.0, 2.0, 4.0-16.0, 2.0, 1.0, 2.0, 1.0)/8.0;
+
 
         vec3 conv3x3(vec2 uv, mat3 fil) {
             vec3 a = vec3(0.0);
@@ -182,22 +184,20 @@ function game_init(state) {
             float fade = smoothstep(0.05, 0.5, opacity);
 
             vec3 color = mix(origin_color.xyz, sobel_color.xyz, fade + 0.15);
-            // vec3 backcolor = color * vec3(buv, 1.);
+
+            
             vec3 backcolor = texture2D(texture0, vec2(1.-uv.x, uv.y)).xyz;
+            // backcolor *= conv3x3(vec2(1.-uv.x, uv.y), gauss) * (1.- uv.x);
+            backcolor = circle(uv, .5) > 0. ? backcolor : vec3(0.);
 
-            // debug
-            // color = vec3(uv.x, 0, uv.y);
-            // backcolor = color + vec3(0., .1 ,0.);
+            // smooth fade
+            backcolor *= vec3(1. - sin((uv.x) *3.));
 
-
-            float offset = .4;
             gl_FragColor = vUv.x < .5? vec4(color.xyz, origin_color.w): vec4(backcolor, 1.);
-            // - (pow(buv.x + offset, 2.) + pow(buv.y + offset, 2.)) ); 
-
             gl_FragColor = vUv.y > 0.1 ? gl_FragColor : vec4(0.);
             gl_FragColor = vUv.y < 0.9 ? gl_FragColor : vec4(0.);
 
-
+            // for debug
             // gl_FragColor = vec4(vUv.x * 0., 0., vUv.y, 1.);
 
         }
@@ -300,7 +300,7 @@ function game_init(state) {
         const floor = new THREE.Mesh(floor_geometry, floor_material);
         floor.rotation.x = - Math.PI / 2;
 
-        floor.position.set(0, -200, 0);
+        floor.position.set(0, -100, 0);
 
         state.scene.add(floor);
 
