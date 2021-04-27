@@ -1,6 +1,6 @@
 const START_SCENE = 'assets/inside1.png'
 
-const VELOCITY = 0.4;
+const VELOCITY = 1.4;
 const TENSION = 0.2;
 const TENSION_Z = 0.5;
 const TENSION_RELAX = 4;
@@ -12,13 +12,15 @@ function move(t, dt, state) {
 
     let all_velocity = Math.abs(forward_velocity) + Math.abs(right_velocity);
 
+    let up_velocity = (state.up - state.down) * dt * VELOCITY;
+
     state.controls.moveRight(right_velocity);
     state.controls.moveForward(forward_velocity);
     state.controls.getObject().position.y += (
         Math.sin(state.camera.rotation.x) * forward_velocity + 
-        (state.up - state.down) * dt * VELOCITY
+        up_velocity
     );
-    return all_velocity;
+    return all_velocity
 }
 
 
@@ -67,7 +69,7 @@ function game_update(t, dt, state) {
         near_item.material.uniforms.time.value = t;
         if(item.distance > 0.5) {
             let x = item.distance * 2;
-            // near_item.scale.set(x, x, -x);
+            near_item.scale.set(x, x, -x);
         } else {
             near_item.scale.set(1, 1, -1);
         }
@@ -226,6 +228,62 @@ function game_init(state) {
         }
     `;
 
+    // floor
+    {
+        const plane_vertex = vert`    
+            varying vec2 vUv;
+            void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
+            }
+        `;
+
+        const plane_fragment_shader = frag`
+            precision mediump float;
+            precision mediump int;
+
+            uniform float time;
+
+            varying vec2 vUv;
+
+            void main() {
+                vec3 color = vec3(0.);
+                vec2 uv = vUv * 10.;
+
+                float gridX = mod(uv.x, 1.) > .9 ? 1. : 0. ;
+                float gridY = mod(uv.y, 1.) > .9 ? 1. : 0. ;
+
+                color += (gridX + gridY) * vec3(1., 0., 1.);
+
+                gl_FragColor = vec4(color, 1.);
+            }
+        `;
+
+        let uniforms = { 
+            time: {value: 0.0},
+            resolution: {value: [window.innerWidth, window.innerHeight]},
+
+        };
+        let floor_material = new THREE.ShaderMaterial({
+            uniforms,
+            vertexShader: plane_vertex[0], 
+            fragmentShader: plane_fragment_shader[0],
+            side: THREE.DoubleSide
+
+        });
+
+        const floor_geometry = new THREE.PlaneGeometry(1, 1, 1 );
+        const floor = new THREE.Mesh(floor_geometry, floor_material);
+        floor.rotation.x = - Math.PI / 2;
+        state.scene.add(floor);
+        state.grid = floor;
+
+    // const size = 10;
+    // const divisions = 1000;
+
+    // const gridHelper = new THREE.GridHelper( size, divisions );
+    // state.scene.add( gridHelper );
+
     state.panorama = {};
 
 
@@ -276,60 +334,8 @@ function game_init(state) {
         state.scene.add(sphere);
     });
 
-    state.new_panorama = state.panorama[1];
 
-    // floor
-    {
-        const plane_vertex = vert`    
-            varying vec2 vUv;
-            void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
-            }
-        `;
-
-        const plane_fragment_shader = frag`
-            precision mediump float;
-            precision mediump int;
-
-            uniform float time;
-
-            varying vec2 vUv;
-
-            void main() {
-                vec3 color = vec3(0.);
-                vec2 uv = vUv * 100.;
-
-                float gridX = mod(uv.x, 1.) > .99 ? 1. : 0. ;
-                float gridY = mod(uv.y, 1.) > .99 ? 1. : 0. ;
-
-                color += (gridX + gridY) * vec3(1., 0., 1.);
-
-                gl_FragColor = vec4(color, 1.);
-            }
-        `;
-
-        let uniforms = { 
-            time: {value: 0.0},
-            resolution: {value: [window.innerWidth, window.innerHeight]},
-
-        };
-        let floor_material = new THREE.ShaderMaterial({
-            uniforms,
-            vertexShader: plane_vertex[0], 
-            fragmentShader: plane_fragment_shader[0],
-            side: THREE.DoubleSide
-
-        });
-
-        const floor_geometry = new THREE.PlaneGeometry(100, 100, 32 );
-        const floor = new THREE.Mesh(floor_geometry, floor_material);
-        floor.rotation.x = - Math.PI / 2;
-
-        floor.position.set(0, -100, 0);
-
-        // state.scene.add(floor);
-
+   
     }
 
     state.up = 0;
@@ -355,11 +361,12 @@ function game_init(state) {
     state.controls.getObject().position.y = current_position.y;
     state.controls.getObject().position.z = current_position.z;
 
-    
+         
     state.edit = false;
     state.move_scene = false;
-    state.stationary_scene = null;
-    state.movable_scene = null;
+    state.rotate_scene = false;
+    state.stationary_scene = 'assets/inside1';
+    state.movable_scene = 'assets/inside4';
     state.scene_opacity = .5;
 
     return state;
@@ -389,6 +396,18 @@ function game_handle_key(code, is_press, state) {
 
     if(code == "KeyF" && is_press) {
         state.sound.play();
+    }    
+    
+    if(code == "KeyM" && is_press) {
+        state.move_scene = !state.move_scene;
+    }
+
+    if(code == "KeyR" && is_press) {
+        state.rotate_scene = !state.rotate_scene;
+    }
+
+    if(code == "KeyY" && is_press) {
+        state.edit = !state.edit;
     }
 
     if(code == "KeyZ" && is_press) {

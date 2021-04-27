@@ -67,13 +67,13 @@ function app() {
     let gui_updater = [];
 
     gui.add(state, 'offset_x')
-        .min(-Math.PI).max(Math.PI).step(0.01)
+        .min(-Math.PI / 4.).max(Math.PI / 4.).step(0.0001)
         .listen().onChange(value => state.offset_x = value);
     gui.add(state, 'offset_y')
-        .min(-Math.PI).max(Math.PI).step(0.01)
+        .min(-Math.PI / 4.).max(Math.PI / 4.).step(0.0001)
         .listen().onChange(value => state.offset_y = value);
     gui.add(state, 'offset_z')
-        .min(-Math.PI).max(Math.PI).step(0.01)
+        .min(-Math.PI / 4.).max(Math.PI / 4.).step(0.0001)
         .listen().onChange(value => state.offset_z = value);
     
     gui_updater.push(
@@ -86,18 +86,19 @@ function app() {
 
     gui_updater.push( 
         gui.add(state, 'stationary_scene', Object.keys(
-        state.panorama).filter(item => (item !== state.stationary_scene))) 
+        state.panorama)) 
         .listen().onChange(value => state.stationary_scene = value)
     );
 
     gui_updater.push( 
         gui.add(state, 'movable_scene', Object.keys(
-        state.panorama).filter(item => (item !== state.movable_scene))) 
+        state.panorama)) 
         .listen().onChange(value => state.movable_scene = value)
     );
 
     gui.add(state, 'edit').listen().onChange(value => {state.edit = value;});  
     gui.add(state, 'move_scene').listen().onChange(value => {state.move_scene = value;});  
+    gui.add(state, 'rotate_scene').listen().onChange(value => {state.rotate_scene = value;});  
     gui.add(state, 'scene_opacity')
     .min(0.).max(1.).step(0.1)
     .listen().onChange(value => state.scene_opacity = value);
