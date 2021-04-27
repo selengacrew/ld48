@@ -80,7 +80,7 @@ function game_update(t, dt, state) {
         state.min_angle_distance = near_item.material.uniforms.angle_dist.value;
 
         // tension
-        if (!state.new_scene) {
+        if (!state.add_new) {
             if(all_velocity > 0) {
                 state.controls.getObject().position.x += 
                     (near_item.position.x - state.camera.position.x) * dt * TENSION;
@@ -385,7 +385,7 @@ function game_init(state) {
     state.new_scene = ADD_NAME;
     let current_position = state.panorama[state.current_scene].position;
 
-    // controller 
+    // controller
     state.controls = new THREE.PointerLockControls(state.camera, document.body);
     state.controls.getObject().position.x = current_position.x;
     state.controls.getObject().position.y = current_position.y;
