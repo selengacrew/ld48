@@ -161,9 +161,18 @@ function game_init(state) {
         void main() {
             vec2 uv = vec2(1. - abs(vUv.x - 0.5) * 2., vUv.y);
 
-            vec4 origin_color = texture2D(texture0, uv);
+            vec3 color = texture2D(texture0, uv).xyz;
+
+            // vec3 color = vec3(0.);
+            uv = uv * 20.;
+
+            float gridX = mod(uv.x, 1.) > .95 ? 1. : 0. ;
+            float gridY = mod(uv.y, 1.) > .95 ? 1. : 0. ;
+
+            color += gridX * vec3(1., 0., 0.);
+            color += gridY * vec3(0., 0., 1.);
             
-            gl_FragColor = vUv.x < .5 ? origin_color * vec4(vec3(1.), opacity) : vec4(0.);
+            gl_FragColor = vUv.x < .5 ? vec4(color, opacity) : vec4(0.);
 
         }
     `;
@@ -285,11 +294,11 @@ function game_init(state) {
         state.scene.add(floor);
         state.grid = floor;
 
-    // const size = 10;
-    // const divisions = 1000;
+    const size = 10;
+    const divisions = 1000;
 
-    // const gridHelper = new THREE.GridHelper( size, divisions );
-    // state.scene.add( gridHelper );
+    const gridHelper = new THREE.GridHelper( size, divisions );
+    state.scene.add( gridHelper );
 
     state.panorama = {};
 
@@ -376,6 +385,7 @@ function game_init(state) {
     state.stationary_scene = null;
     state.movable_scene = null;
     state.scene_opacity = .5;
+    state.all_visible = false;
 
     return state;
 }
@@ -426,6 +436,11 @@ function game_handle_key(code, is_press, state) {
 
     if(code == "KeyG" && is_press) {
         state.grab_scene = !state.grab_scene;
+
+    }    
+
+    if(code == "KeyH" && is_press) {
+        [state.stationary_scene, state.movable_scene] = [state.movable_scene, state.stationary_scene];
 
     }    
 

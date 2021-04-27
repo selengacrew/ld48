@@ -104,6 +104,8 @@ function app() {
     .min(0.).max(1.).step(0.1)
     .listen().onChange(value => state.scene_opacity = value);
     
+    gui.add(state, 'all_visible').listen().onChange(value => { Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = value;})});
+    
     gui_updater.push(
         gui.add(state, "min_angle_distance")
     );
@@ -137,5 +139,5 @@ function app() {
     
     animate();
 }
-
+    
 window.onload = app;

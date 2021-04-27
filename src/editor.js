@@ -54,7 +54,7 @@ function editor_update(t, dt, state) {
         move(t, dt, state);
     }
 
-    window.addEventListener("wheel", event => state.scene_opacity += event.deltaY / 1000.);
+    window.addEventListener("wheel", event => (Math.clamp(state.scene_opacity += Math.sign(event.deltaY) * dt / 200., 0., 1.)));
 
 }
 
