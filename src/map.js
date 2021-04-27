@@ -111,12 +111,7 @@ const SELENGA_MAP =  {
 
     "assets/inside43.png": {
         position: [-0.8609635381004515, 0.3616356490706426, -4.8810551452341935],
-<<<<<<< HEAD
-        // rotation: [0.7005353291014181, -0.18651330834207952, -0.34489733371189885]
-        rotation: [0.7005353291014181, -0.18651330834207952, -0.]
-=======
         rotation: [0.7005353291014181, -0.18651330834207952, -0.34489733371189885]
->>>>>>> origin
     },
 
     "assets/inside44.png": {
@@ -133,63 +128,4 @@ const SELENGA_MAP =  {
         position: [-0.1090514111552326, -0.6850740522652269, -0.8450017675514452],
         rotation: [-1.3675233788996648, -1.3808390799479295, -1.36390443237699]
     },
-<<<<<<< HEAD
-
-
-    // front to back
-    // 'assets/inside45.png': {
-    //     position: [0, 0, 0],
-    //     rotation: [0, 0, 0]
-    // },
-    'assets/inside47.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside48.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside5.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside50.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside51.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside52.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside59.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside6.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside66.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside81.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside82.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-    'assets/inside86.png': {
-            position: [0, 0, 0],
-            rotation: [0, 0, 0]
-        },
-
-=======
->>>>>>> origin
 };

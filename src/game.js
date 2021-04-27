@@ -1,7 +1,6 @@
 
-let ADD_NEW = true;
 let ADD_NAME = 'assets/inside10.png';
-let START_NAME = 'assets/inside43.png';
+let START_NAME = 'assets/inside1.png';
 
 function set_active(name) {
     ADD_NAME = name;
@@ -29,18 +28,18 @@ function game_update(t, dt, state) {
         (state.up - state.down) * dt * VELOCITY
     );
 
-    let camera_yaw = state.camera.clone().rotation.reorder("XYZ").y;
+    let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
 
     let distance_items = Object.keys(state.panorama)
     .map(name => ({name, value: state.panorama[name]}))
-    .filter(item => (item.name !== ADD_NAME || !ADD_NEW))
+    .filter(item => (item.name !== ADD_NAME || !state.add_new))
     .map(item => {
         let distance =
             Math.pow(item.value.position.x - state.camera.position.x, 2) +
             Math.pow(item.value.position.y - state.camera.position.y, 2) +
             Math.pow(item.value.position.z - state.camera.position.z, 2);
 
-        let angle_distance = Math.pow(camera_yaw - item.value.rotation.reorder("XZY").y, 2);
+        let angle_distance = Math.pow(camera_yaw - item.value.clone().rotation.reorder("XZY").y, 2);
         distance += angle_distance / 300.;
 
         return {name: item.name, distance};
@@ -58,8 +57,9 @@ function game_update(t, dt, state) {
         let near_item = state.panorama[item.name];
 
         near_item.visible = true;
-        near_item.material.uniforms.dist.value = ADD_NEW ? 0.25 : item.distance;
+        near_item.material.uniforms.dist.value = item.distance;
         near_item.material.uniforms.diff_dist.value = diff_distance;
+        near_item.material.uniforms.opacity.value = state.add_new ? Math.sin(t * 10.) * .5 + 1 : 1.;
         near_item.material.uniforms.angle_dist.value = (
             Math.pow(
                 state.camera.rotation.x -
@@ -101,8 +101,11 @@ function game_update(t, dt, state) {
         }
     });
 
-    if(ADD_NEW) {
+    if(state.add_new) {
+
         let new_panorama = state.panorama[ADD_NAME];
+        new_panorama.material.uniforms.opacity.value = -Math.sin(t * 10.) * .5 + 1;
+
         new_panorama.visible = true;
         new_panorama.position.copy(state.camera.position);
         new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
@@ -115,7 +118,7 @@ function game_update(t, dt, state) {
 }
 
 function game_init(state) {
-    state.scene.background = new THREE.Color('purple');
+    state.scene.background = new THREE.Color('black');
 
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
@@ -184,6 +187,7 @@ function game_init(state) {
         uniform float diff_dist;
         uniform float angle_dist;
         uniform float time;
+        uniform float opacity;
 
         const mat3 sobelX = mat3(-1.0, 0.0, 1.0, -2.0, 0.0, 2.0, -1.0, 0.0, 1.0)/8.0;
         const mat3 sobelY = mat3(-1.0,-2.0,-1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 1.0)/8.0;
@@ -238,8 +242,8 @@ function game_init(state) {
                 (1. - angle_fade);
 
             gl_FragColor = mix(
-                vec4(opacity_fade * backcolor, 0.5),
-                vec4(opacity_fade * frontcolor, origin_color.w),
+                vec4(opacity_fade * backcolor, 0.5 * opacity),
+                vec4(opacity_fade * frontcolor, origin_color.w * opacity),
                 front
             );
         }
@@ -258,6 +262,7 @@ function game_init(state) {
             diff_dist: {value: 1.0},
             angle_dist: {value: 0.0},
             time: {value: 0.0},
+            opacity: {value: 1.0},
         };
     
         const sphere_shader = new THREE.ShaderMaterial({
@@ -384,6 +389,8 @@ function game_init(state) {
     state.controls.getObject().position.x = current_position.x;
     state.controls.getObject().position.y = current_position.y;
     state.controls.getObject().position.z = current_position.z;
+
+    state.add_new = false;
 
     return state;
 }

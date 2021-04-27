@@ -88,10 +88,14 @@ function app() {
     );
     // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
 
-    gui_updater.push( gui.add(state, 'new_scene', Object.keys(
+    gui_updater.push( 
+        gui.add(state, 'new_scene', Object.keys(
         state.panorama).filter(item => (item !== state.current_scene))) 
         .listen().onChange(value => set_active(value))
     );
+
+    gui.add(state, 'add_new').listen().onChange(value => {state.add_new = value;});
+
     // a.map((n) => { return " " + n + " " })
 
 
