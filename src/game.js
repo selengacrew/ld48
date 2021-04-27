@@ -52,10 +52,20 @@ function game_update(t, dt, state) {
         near_item.visible = true;
         near_item.material.uniforms.dist.value = ADD_NEW ? 0.25 : item.distance;
         near_item.material.uniforms.diff_dist.value = diff_distance;
-        near_item.material.uniforms.angle_dist.value = Math.pow(
-            state.camera.clone().rotation.reorder("XZY").y -
-            near_item.rotation.reorder("XZY").y
-        , 2);
+        near_item.material.uniforms.angle_dist.value = (
+            Math.pow(
+                state.camera.rotation.x -
+                near_item.rotation.x
+            , 2) +
+            Math.pow(
+                state.camera.rotation.y -
+                near_item.rotation.y
+            , 2) +
+            Math.pow(
+                state.camera.rotation.z -
+                near_item.rotation.z
+            , 2)
+        ) / 3;
         near_item.material.uniforms.time.value = t;
         if(item.distance > 0.5) {
             let x = item.distance * 2;
