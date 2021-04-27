@@ -1,12 +1,4 @@
-
-let ADD_NAME = 'assets/inside45.png';
-let START_NAME = 'assets/inside47.png';
-
-function set_active(name) {
-    ADD_NAME = name;
-    console.log('active: ', name);
-    // game_update();
-};
+const START_SCENE = 'assets/inside1.png'
 
 const VELOCITY = 0.4;
 const TENSION = 0.2;
@@ -14,8 +6,7 @@ const TENSION_Z = 0.5;
 const TENSION_RELAX = 4;
 
 
-function game_update(t, dt, state) {
-
+function move(t, dt, state) {
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
     let right_velocity = (state.right - state.left) * dt * VELOCITY;
 
@@ -27,12 +18,19 @@ function game_update(t, dt, state) {
         Math.sin(state.camera.rotation.x) * forward_velocity + 
         (state.up - state.down) * dt * VELOCITY
     );
+    return all_velocity;
+}
+
+
+function game_update(t, dt, state) {
+
+    let all_velocity = move(t, dt, state);
 
     let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
 
     let distance_items = Object.keys(state.panorama)
     .map(name => ({name, value: state.panorama[name]}))
-    .filter(item => (item.name !== ADD_NAME || !state.add_new))
+    .filter(item => (item.name !== state.movable_scene || !state.edit))
     .map(item => {
         let distance =
             Math.pow(item.value.position.x - state.camera.position.x, 2) +
@@ -46,9 +44,6 @@ function game_update(t, dt, state) {
     })
     .sort((a, b) => a.distance - b.distance);
 
-    if (state.current_scene !== distance_items[0].name) {
-        console.log("CURRENT SCENE CHANGED", distance_items)
-    }
     state.current_scene = distance_items[0].name;
     state.min_distance = distance_items[0].distance;
 
@@ -60,9 +55,9 @@ function game_update(t, dt, state) {
         let near_item = state.panorama[item.name];
 
         near_item.visible = true;
-        near_item.material.uniforms.dist.value = state.add_new ? 0. : item.distance;
-        near_item.material.uniforms.diff_dist.value = state.add_new ? 1. : diff_distance;
-        near_item.material.uniforms.opacity.value = state.add_new ? Math.sin(t * 10.) * .5 + 1 : 1.;
+        near_item.material.uniforms.dist.value = state.edit ? 0. : item.distance;
+        near_item.material.uniforms.diff_dist.value = state.edit ? 1. : diff_distance;
+        // near_item.material.uniforms.opacity.value = state.edit ? state.scene_opacity : 1.;
 
         let near_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(near_item.rotation);
         let camera_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(state.camera.rotation);
@@ -72,7 +67,7 @@ function game_update(t, dt, state) {
         near_item.material.uniforms.time.value = t;
         if(item.distance > 0.5) {
             let x = item.distance * 2;
-            near_item.scale.set(x, x, -x);
+            // near_item.scale.set(x, x, -x);
         } else {
             near_item.scale.set(1, 1, -1);
         }
@@ -80,7 +75,7 @@ function game_update(t, dt, state) {
         state.min_angle_distance = near_item.material.uniforms.angle_dist.value;
 
         // tension
-        if (!state.new_scene) {
+        if (!state.edit) {
             if(all_velocity > 0) {
                 state.controls.getObject().position.x += 
                     (near_item.position.x - state.camera.position.x) * dt * TENSION;
@@ -98,34 +93,20 @@ function game_update(t, dt, state) {
                     (near_item.position.z - state.camera.position.z) * dt * TENSION_RELAX;
             }
         }
+
+        
     });
-
-    if(state.add_new) {
-        let new_panorama = state.panorama[ADD_NAME];
-        new_panorama.material.uniforms.opacity.value = -Math.sin(t * 10.) * .5 + 1; 
-        new_panorama.material.uniforms.dist.value = 0.;
-        new_panorama.material.uniforms.diff_dist.value = 1.;
-
-        new_panorama.visible = true;
-        new_panorama.position.copy(state.camera.position);
-        new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
-        new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
-        new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
-        new_panorama.updateMatrix(); 
-    }
-
-    
+ 
 }
 
 function game_init(state) {
-    state.scene.background = new THREE.Color('black');
+    state.scene.background = new THREE.Color('purple');
 
     state.camera = new THREE.PerspectiveCamera(
         80, window.innerWidth / window.innerHeight, 0.1, 1000
     );
     state.camera.position.set(0., 0., 0.);
     state.camera.rotation.order = 'XYZ';
-
 
     const listener = new THREE.AudioListener();
     state.camera.add(listener);
@@ -204,10 +185,6 @@ function game_init(state) {
             return a;
         }
 
-        float circle(vec2 uv, float r) {
-            return length(uv) - pow(r, 2.); 
-        }
-
         void main() {
             vec2 uv = vec2(1. - abs(vUv.x - 0.5) * 2., vUv.y);
 
@@ -242,14 +219,13 @@ function game_init(state) {
                 (1. - angle_fade);
 
             gl_FragColor = mix(
-                vec4(opacity_fade * backcolor, 0.5 * opacity),
-                vec4(opacity_fade * frontcolor, origin_color.w * opacity),
+                vec4(opacity_fade * backcolor, 0.5),
+                vec4(opacity_fade * frontcolor, origin_color.w),
                 front
-            );
+            ) * vec4(vec3(1.), opacity);
         }
     `;
 
-    // state.panorama = [];
     state.panorama = {};
 
 
@@ -340,7 +316,7 @@ function game_init(state) {
         };
         let floor_material = new THREE.ShaderMaterial({
             uniforms,
-            vertexShader: plane_vertex[0], //THREE.DefaultVertex,
+            vertexShader: plane_vertex[0], 
             fragmentShader: plane_fragment_shader[0],
             side: THREE.DoubleSide
 
@@ -354,16 +330,6 @@ function game_init(state) {
 
         // state.scene.add(floor);
 
-        // fun
-    
-        const sphere_0 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 32, 32),
-            floor_material,
-        );
-        
-        sphere_0.position.x = 2;
-        sphere_0.position.z = -5;
-        // state.scene.add(sphere_0);
     }
 
     state.up = 0;
@@ -380,9 +346,7 @@ function game_init(state) {
     state.min_distance = 0.1;
     state.min_angle_distance = 0.1;
     
-
-    state.current_scene = START_NAME;
-    state.new_scene = ADD_NAME;
+    state.current_scene = START_SCENE;
     let current_position = state.panorama[state.current_scene].position;
 
     // controller 
@@ -391,12 +355,15 @@ function game_init(state) {
     state.controls.getObject().position.y = current_position.y;
     state.controls.getObject().position.z = current_position.z;
 
-    state.add_new = false;
-
+    
+    state.edit = false;
+    state.move_scene = false;
+    state.stationary_scene = null;
+    state.movable_scene = null;
+    state.scene_opacity = .5;
 
     return state;
 }
-
 
 
 function game_handle_key(code, is_press, state) {

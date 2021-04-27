@@ -17,10 +17,6 @@ function app() {
 
     state = game_init(state);
 
-    // moved to game.js
-    // state.controls = new THREE.PointerLockControls(state.camera, document.body);
-    // // state.controls.poisiton = [0, 0, 0];
-
     function onWindowResize() {
         state.camera.aspect = window.innerWidth / window.innerHeight;
         state.camera.updateProjectionMatrix();
@@ -83,26 +79,32 @@ function app() {
     gui_updater.push(
         gui.add(state, "min_distance")
     );
+   
     gui_updater.push(
         gui.add(state, 'current_scene')
     );
-    // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
 
     gui_updater.push( 
-        gui.add(state, 'new_scene', Object.keys(
-        state.panorama).filter(item => (item !== state.current_scene))) 
-        .listen().onChange(value => set_active(value))
+        gui.add(state, 'stationary_scene', Object.keys(
+        state.panorama).filter(item => (item !== state.stationary_scene))) 
+        .listen().onChange(value => state.stationary_scene = value)
     );
 
-    gui.add(state, 'add_new').listen().onChange(value => {state.add_new = value;});  
+    gui_updater.push( 
+        gui.add(state, 'movable_scene', Object.keys(
+        state.panorama).filter(item => (item !== state.movable_scene))) 
+        .listen().onChange(value => state.movable_scene = value)
+    );
+
+    gui.add(state, 'edit').listen().onChange(value => {state.edit = value;});  
+    gui.add(state, 'move_scene').listen().onChange(value => {state.move_scene = value;});  
+    gui.add(state, 'scene_opacity')
+    .min(0.).max(1.).step(0.1)
+    .listen().onChange(value => state.scene_opacity = value);
     
     gui_updater.push(
         gui.add(state, "min_angle_distance")
     );
-
-    // a.map((n) => { return " " + n + " " })
-
-
 
     let time = 0;
     let prev_time = (+new Date());
@@ -115,8 +117,13 @@ function app() {
         
         time += dt;
     
-        game_update(time, dt, state);
-        
+        if (state.edit) {
+            editor_update(time, dt, state);
+        }
+        else {
+            game_update(time, dt, state);
+        }
+                
         // renderer.setRenderTarget(null);
         // state.camera.updateProjectionMatrix();
         // console.log(state.camera);
