@@ -83,14 +83,18 @@ function app() {
     gui_updater.push(
         gui.add(state, "min_distance")
     );
-
-    // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
-    let scenes_dropdown = gui.add(state, 'current_scene', Object.keys(SELENGA_MAP))
-        .listen().onChange(value => set_active(value));
-    // a.map((n) => { return " " + n + " " })
     gui_updater.push(
         gui.add(state, 'current_scene')
     );
+    // let current_gui = gui.add(state, 'current_scene').listen().onChange(value => state.addnew(value));
+
+    gui_updater.push( gui.add(state, 'new_scene', Object.keys(
+        state.panorama).filter(item => (item !== state.current_scene))) 
+        .listen().onChange(value => set_active(value))
+    );
+    // a.map((n) => { return " " + n + " " })
+
+
 
     let time = 0;
     let prev_time = (+new Date());

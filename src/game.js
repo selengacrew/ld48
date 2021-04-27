@@ -1,17 +1,18 @@
 
 let ADD_NEW = true;
-let ADD_NAME = 'assets/inside47.png';
+let ADD_NAME = 'assets/inside10.png';
+let START_NAME = 'assets/inside43.png';
 
 function set_active(name) {
     ADD_NAME = name;
     console.log('active: ', name);
+    // game_update();
 };
 
 const VELOCITY = 0.4;
 
 function game_update(t, dt, state) {
-    
-    // console.log(state.new_panorama);
+
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
 
     state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
@@ -50,7 +51,7 @@ function game_update(t, dt, state) {
         let near_item = state.panorama[item.name];
 
         near_item.visible = true;
-        near_item.material.uniforms.distance.value = ADD_NEW ? 0.25 : item.distance;
+        near_item.material.uniforms.distance.value = ADD_NEW ? 0. : item.distance;
         near_item.material.uniforms.diff_distance.value = diff_distance;
         near_item.material.uniforms.time.value = t;
         if(item.distance > 0.5) {
@@ -168,9 +169,9 @@ function game_init(state) {
             vec2 buv = vec2(vUv.x / 2., vUv.y);
             
             vec2 wooUv = uv * (1. + distance * 0.02 * sin(10. * time + sin(uv) * cos(uv) * 20.));
-            vec4 origin_color = texture2D(texture0, uv);
-            vec3 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)) * 10.;
-            sobel_color += origin_color.xyz;
+            vec4 origin_color = texture2D(texture0, uv) * pow(sin(time * 10.), 2.);
+            vec3 sobel_color = (conv3x3(wooUv, sobelX) + conv3x3(wooUv, sobelY)).xxx * cos(time*10.);
+            
 
             float fade = smoothstep(0.05, 0.5, distance);
             float opacity_fade = smoothstep(0.01, 0.05, diff_distance) + 0.5;
@@ -305,7 +306,7 @@ function game_init(state) {
         
         sphere_0.position.x = 2;
         sphere_0.position.z = -5;
-        state.scene.add(sphere_0);
+        // state.scene.add(sphere_0);
     }
 
     state.up = 0;
@@ -322,7 +323,8 @@ function game_init(state) {
     state.min_distance = 0.1;
     state.min_angle_distance = 0.1;
 
-    state.current_scene = 'assets/inside41.png';
+    state.current_scene = START_NAME;
+    state.new_scene = ADD_NAME;
     let current_position = state.panorama[state.current_scene].position;
 
     // controller 
@@ -377,6 +379,8 @@ function game_handle_key(code, is_press, state) {
 
         console.log(state.camera.rotation);
         console.log(state.panorama[state.current_scene].rotation);
+
+        console.log("POSITION", state.camera.position);
         // console.log(positions);
         
     }
