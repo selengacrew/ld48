@@ -8,13 +8,20 @@ function set_active(name) {
 };
 
 const VELOCITY = 0.4;
+const TENSION = 0.2;
+const TENSION_Z = 0.5;
+const TENSION_RELAX = 4;
+
 
 function game_update(t, dt, state) {
     
     // console.log(state.new_panorama);
     let forward_velocity = (state.forward - state.backward) * dt * VELOCITY;
+    let right_velocity = (state.right - state.left) * dt * VELOCITY;
 
-    state.controls.moveRight((state.right - state.left) * dt * VELOCITY);
+    let all_velocity = Math.abs(forward_velocity) + Math.abs(right_velocity);
+
+    state.controls.moveRight(right_velocity);
     state.controls.moveForward(forward_velocity);
     state.controls.getObject().position.y += (
         Math.sin(state.camera.rotation.x) * forward_velocity + 
@@ -72,6 +79,24 @@ function game_update(t, dt, state) {
             near_item.scale.set(x, x, -x);
         } else {
             near_item.scale.set(1, 1, -1);
+        }
+
+        // tension
+        if(all_velocity > 0) {
+            state.controls.getObject().position.x += 
+                (near_item.position.x - state.camera.position.x) * dt * TENSION;
+            state.controls.getObject().position.y += 
+                (near_item.position.y - state.camera.position.y) * dt * TENSION;
+            
+            state.controls.getObject().position.z += 
+                (near_item.position.z - state.camera.position.z) * dt * TENSION_Z;
+        } else {
+            state.controls.getObject().position.x += 
+                (near_item.position.x - state.camera.position.x) * dt * TENSION_RELAX;
+            state.controls.getObject().position.y += 
+                (near_item.position.y - state.camera.position.y) * dt * TENSION_RELAX;
+            state.controls.getObject().position.z += 
+                (near_item.position.z - state.camera.position.z) * dt * TENSION_RELAX;
         }
     });
 
