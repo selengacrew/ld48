@@ -99,6 +99,7 @@ function app() {
     gui.add(state, 'edit').listen().onChange(value => {state.edit = value;});  
     gui.add(state, 'move_scene').listen().onChange(value => {state.move_scene = value;});  
     gui.add(state, 'rotate_scene').listen().onChange(value => {state.rotate_scene = value;});  
+    gui.add(state, 'grab_scene').listen().onChange(value => {state.grab_scene = value;});  
     gui.add(state, 'scene_opacity')
     .min(0.).max(1.).step(0.1)
     .listen().onChange(value => state.scene_opacity = value);
