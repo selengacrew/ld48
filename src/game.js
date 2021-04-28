@@ -338,8 +338,19 @@ function game_init(state) {
         state.scene.add(mesh);
         state.panorama[name] = mesh;
 
+        // torus knot with 6 pointy ends, like in symbol "*"
+        const radius =  3.4 / 50.;  
+        const tubeRadius =  1.6 / 50.;  
+        const radialSegments =  3;
+        const tubularSegments =  29;  
+        const p =  1;  
+        const q =  6; 
+        const asterisk_geometry = new THREE.TorusKnotGeometry(
+            radius, tubeRadius, tubularSegments, radialSegments, p, q);
+
         const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(0.02, 32, 32),
+            // new THREE.SphereGeometry(0.02, 32, 32),         
+            asterisk_geometry,  
             red_material
         );
 
