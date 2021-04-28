@@ -103,7 +103,8 @@ function app() {
     gui.add(state, 'scene_opacity')
     .min(0.).max(1.).step(0.1)
     .listen().onChange(value => state.scene_opacity = value);
-    
+    gui.add(state, 'scene_grid').listen().onChange(value => {state.scene_grid = value;});  
+
     gui.add(state, 'all_visible').listen().onChange(value => { Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = value;})});
     
     gui_updater.push(

@@ -9,13 +9,16 @@ function editor_update(t, dt, state) {
     else {
         state.panorama[state.stationary_scene].visible = true;
         state.panorama[state.stationary_scene].material.uniforms.opacity.value = 1. - state.scene_opacity;
-
+        state.panorama[state.stationary_scene].material.uniforms.grid.value = state.scene_grid ? 1. : 0.;
 
         let new_panorama = state.panorama[state.movable_scene];
 
         state.grid.position.set(new_panorama.position.x, new_panorama.position.y, new_panorama.position.z);
+        
         new_panorama.visible = true;
         new_panorama.material.uniforms.opacity.value = state.scene_opacity;
+        new_panorama.material.uniforms.grid.value = state.scene_grid ? 1. : 0.;
+
 
         new_panorama.material.uniforms.dist.value = 0.;
         new_panorama.material.uniforms.diff_dist.value = 1.;

@@ -156,21 +156,20 @@ function game_init(state) {
         uniform float angle_dist;
         uniform float time;
         uniform float opacity;
-
+        uniform float grid;
 
         void main() {
             vec2 uv = vec2(1. - abs(vUv.x - 0.5) * 2., vUv.y);
 
             vec3 color = texture2D(texture0, uv).xyz;
 
-            // vec3 color = vec3(0.);
             uv = uv * 20.;
 
             float gridX = mod(uv.x, 1.) > .95 ? 1. : 0. ;
             float gridY = mod(uv.y, 1.) > .95 ? 1. : 0. ;
 
-            color += gridX * vec3(1., 0., 0.);
-            color += gridY * vec3(0., 0., 1.);
+            color += gridX * vec3(1., 0., 0.) * grid;
+            color += gridY * vec3(0., 0., 1.) * grid;
             
             gl_FragColor = vUv.x < .5 ? vec4(color, opacity) : vec4(0.);
 
@@ -244,7 +243,7 @@ function game_init(state) {
         }
     `;
 
-    // floor
+    // grid
     {
         const plane_vertex = vert`    
             varying vec2 vUv;
@@ -266,8 +265,8 @@ function game_init(state) {
                 vec3 color = vec3(0.);
                 vec2 uv = vUv * 10.;
 
-                float gridX = mod(uv.x, 1.) > .9 ? 1. : 0. ;
-                float gridY = mod(uv.y, 1.) > .9 ? 1. : 0. ;
+                float gridX = mod(uv.x, 1.) > .95 ? 1. : 0. ;
+                float gridY = mod(uv.y, 1.) > .95 ? 1. : 0. ;
 
                 color += (gridX + gridY) * vec3(1., 0., 1.);
 
@@ -280,7 +279,7 @@ function game_init(state) {
             resolution: {value: [window.innerWidth, window.innerHeight]},
 
         };
-        let floor_material = new THREE.ShaderMaterial({
+        let grid_material = new THREE.ShaderMaterial({
             uniforms,
             vertexShader: plane_vertex[0], 
             fragmentShader: plane_fragment_shader[0],
@@ -288,11 +287,11 @@ function game_init(state) {
 
         });
 
-        const floor_geometry = new THREE.PlaneGeometry(2, 2, 2 );
-        const floor = new THREE.Mesh(floor_geometry, floor_material);
-        floor.rotation.x = - Math.PI / 2;
-        state.scene.add(floor);
-        state.grid = floor;
+        const grid_geometry = new THREE.PlaneGeometry(2, 2, 2 );
+        const grid = new THREE.Mesh(grid_geometry, grid_material);
+        grid.rotation.x = - Math.PI / 2;
+        state.scene.add(grid);
+        state.grid = grid;
 
     const size = 10;
     const divisions = 1000;
@@ -313,6 +312,7 @@ function game_init(state) {
             angle_dist: {value: 0.0},
             time: {value: 0.0},
             opacity: {value: 1.0},
+            grid: {value: 0.0},
         };
     
         const sphere_shader = new THREE.ShaderMaterial({
@@ -396,7 +396,9 @@ function game_init(state) {
     state.stationary_scene = null;
     state.movable_scene = null;
     state.scene_opacity = .5;
+    state.scene_grid = false;
     state.all_visible = false;
+
 
     return state;
 }
