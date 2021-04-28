@@ -319,7 +319,7 @@ function game_init(state) {
             uniforms: sphere_uniforms,
             vertexShader: sphere_vertex[0], //THREE.DefaultVertex,
             fragmentShader: editor_fragment[0],
-            side: THREE.DoubleSide,
+            side: THREE.BackSide,
             transparent: true,
             depthTest: false,
             depthWrite: false,

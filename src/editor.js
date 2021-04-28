@@ -54,7 +54,15 @@ function editor_update(t, dt, state) {
         move(t, dt, state);
     }
 
-    window.addEventListener("wheel", event => (Math.clamp(state.scene_opacity += Math.sign(event.deltaY) * dt / 200., 0., 1.)));
+    window.addEventListener("wheel", event => state.scene_opacity += Math.sign(event.deltaY) * dt / 200., 0., 1.);
+
+    // todo: find normalize or clamp function instead of the following
+    if (state.scene_opacity > 1.) {
+        state.scene_opacity = 1.;
+    }
+    if (state.scene_opacity < 0.) {
+        state.scene_opacity = 0.;
+    }
 
 }
 
