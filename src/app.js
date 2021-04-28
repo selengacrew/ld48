@@ -111,6 +111,16 @@ function app() {
         gui.add(state, "min_angle_distance")
     );
 
+
+    // gui_updater.push(
+    //     gui.add(state, "camera_position")
+    // );
+
+    // gui_updater.push(
+    //     gui.add(state, "camera_rotation")
+    // );
+
+
     let time = 0;
     let prev_time = (+new Date());
         

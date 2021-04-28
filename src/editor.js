@@ -1,3 +1,5 @@
+
+
 function editor_update(t, dt, state) {
 
     // Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = true;});
@@ -49,19 +51,23 @@ function editor_update(t, dt, state) {
         }
 
         if (state.grab_scene) { 
-            new_panorama.position.copy(state.camera.position);
+            // new_panorama.position.copy(state.camera.position);
             new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
             new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
             new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
 
-            new_panorama.updateMatrix(); 
+            new_panorama.updateMatrix();
+
+            state.camera.lookAt(new_panorama.position);
 
         }
+
     }
 
     if (!state.move_scene && !state.rotate_scene) {
         move(t, dt, state);
     }
+
 
     window.addEventListener("wheel", event => state.scene_opacity += Math.sign(event.deltaY) * dt / 200., 0., 1.);
 

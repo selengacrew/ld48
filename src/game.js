@@ -28,6 +28,9 @@ function game_update(t, dt, state) {
 
     let all_velocity = move(t, dt, state);
 
+    // state.camera_rotation = state.camera.rotation;
+    // state.camera_position = state.camera.position;
+
     let camera_yaw = state.camera.clone().rotation.reorder("XZY").y;
 
     let distance_items = Object.keys(state.panorama)
@@ -62,7 +65,7 @@ function game_update(t, dt, state) {
         // near_item.material.uniforms.opacity.value = state.edit ? state.scene_opacity : 1.;
 
         let near_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(near_item.rotation);
-        let camera_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(state.camera.rotation);
+        let camera_lookat = (new THREE.Vector3(1, 0, 0)).applyEuler(state.camera.rotation) ;
 
         near_item.material.uniforms.angle_dist.value = camera_lookat.angleTo(near_lookat);
 
@@ -388,6 +391,8 @@ function game_init(state) {
     state.controls.getObject().position.y = current_position.y;
     state.controls.getObject().position.z = current_position.z;
 
+
+
          
     state.edit = false;
     state.move_scene = false;
@@ -398,6 +403,10 @@ function game_init(state) {
     state.scene_opacity = .5;
     state.scene_grid = false;
     state.all_visible = false;
+
+    // state.camera_rotation = state.controls.getObject().rotation;
+    // state.camera_position = current_position;
+    // console.log(state.camera_position, state.camera_rotation);
 
 
     return state;
@@ -453,7 +462,9 @@ function game_handle_key(code, is_press, state) {
     }    
 
     if(code == "KeyH" && is_press) {
-        [state.stationary_scene, state.movable_scene] = [state.movable_scene, state.stationary_scene];
+        let temp = state.stationary_scene;
+        state.stationary_scene = state.movable_scene; 
+        state.movable_scene = temp;
 
     }    
 

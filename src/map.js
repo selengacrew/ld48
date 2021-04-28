@@ -118,29 +118,4 @@ const SELENGA_MAP =  {
         position: [-0.84, -1.3524, -9.192399999999969],
         rotation: [0, 0, 0]
     },
-
-    "assets/inside45.png": {
-        position: [0.6593999999999995, 0.2576000000000003, -6.717199999999989],
-        rotation: [0, 0, 0]
-    },
-
-    "assets/inside47.png": {
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-    },
-
-    "assets/inside48.png": {
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-    },
-
-    "assets/inside50.png": {
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-    },
-
-    "assets/inside51.png": {
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-    },
 };
