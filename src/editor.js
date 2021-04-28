@@ -57,13 +57,20 @@ function editor_update(t, dt, state) {
 
 
             let distance =
-                // Math.pow(world_position.x - state.camera.position.x, 2) +
-                // Math.pow(world_position.y - state.camera.position.y, 2) +
-                Math.abs(world_position.z - state.camera.position.z)
+                Math.max(
+                    Math.abs(world_position.x - state.camera.position.x),
+                    Math.abs(world_position.y - state.camera.position.y),
+                    Math.abs(world_position.z - state.camera.position.z))
 
             state.camera.add(new_panorama);
             new_panorama.position.set(0, 0, -distance);
+            // new_panorama.rotation.set(-state.camera.rotation.x, -state.camera.rotation.y, state.camera.rotation.z);
+
+
             new_panorama.updateMatrix();
+            console.log("rotations active");
+            console.log(new_panorama.rotation);
+            console.log(state.camera.rotation);
       
         }
 
@@ -76,9 +83,12 @@ function editor_update(t, dt, state) {
                 world_position.x, 
                 world_position.y, 
                 world_position.z);
-            new_panorama.rotation.set(state.camera.rotation.x, state.camera.rotation.y, state.camera.rotation.z);
+            // new_panorama.rotation.set(state.camera.rotation.x, state.camera.rotation.y, state.camera.rotation.z);
             state.scene.add(new_panorama);
             console.log(new_panorama.position);
+            console.log("rotations fin");
+            console.log(new_panorama.rotation);
+            console.log(state.camera.rotation);
 
             
         }
