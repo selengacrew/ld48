@@ -108,20 +108,20 @@ function game_init(state) {
     state.camera.position.set(0., 0., 0.);
     state.camera.rotation.order = 'XYZ';
 
-    const listener = new THREE.AudioListener();
-    state.camera.add(listener);
-    state.sound = new THREE.PositionalAudio(listener);
-    state.sound.panner.setPosition(0, 0, -1);
-    state.sound.setRolloffFactor(10); 
-    state.sound.setMaxDistance(0.1);
-    state.sound.setDistanceModel("exponential");
+    // const listener = new THREE.AudioListener();
+    // state.camera.add(listener);
+    // state.sound = new THREE.PositionalAudio(listener);
+    // state.sound.panner.setPosition(0, 0, -1);
+    // state.sound.setRolloffFactor(10); 
+    // state.sound.setMaxDistance(0.1);
+    // state.sound.setDistanceModel("exponential");
 
-    const audioLoader = new THREE.AudioLoader();
-    audioLoader.load( 'assets/sound.mp3', function(buffer) {
-        state.sound.setBuffer( buffer );
-        state.sound.setRefDistance(0.1);
-        // state.sound.play();
-    });
+    // const audioLoader = new THREE.AudioLoader();
+    // audioLoader.load( 'assets/sound.mp3', function(buffer) {
+    //     state.sound.setBuffer( buffer );
+    //     state.sound.setRefDistance(0.1);
+    //     // state.sound.play();
+    // });
 
 
     const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -352,8 +352,8 @@ function game_init(state) {
             radius, tubeRadius, tubularSegments, radialSegments, p, q);
 
         const sphere = new THREE.Mesh(
-            // new THREE.SphereGeometry(0.02, 32, 32),         
-            asterisk_geometry,  
+            new THREE.SphereGeometry(0.02, 32, 32),         
+            // asterisk_geometry,  1
             red_material
         );
 
@@ -400,13 +400,40 @@ function game_init(state) {
     state.grab_scene = false;
     state.stationary_scene = null;
     state.movable_scene = null;
+    state.grab_distance = 1.
     state.scene_opacity = .5;
     state.scene_grid = false;
     state.all_visible = false;
+    
+
+    // state.scene.add(camera)
 
     // state.camera_rotation = state.controls.getObject().rotation;
     // state.camera_position = current_position;
     // console.log(state.camera_position, state.camera_rotation);
+
+    // torus knot with 6 pointy ends, like in symbol "*"
+    const radius =  3.4 / 50.;  
+    const tubeRadius =  1.6 / 50.;  
+    const radialSegments =  3;
+    const tubularSegments =  29;  
+    const p =  1;  
+    const q =  6; 
+    const asterisk_geometry = new THREE.TorusKnotGeometry(
+        radius, tubeRadius, tubularSegments, radialSegments, p, q);
+
+
+
+    const asterisk = new THREE.Mesh(
+    //   new THREE.SphereGeometry(0.02, 32, 32),         
+        asterisk_geometry,  
+        red_material
+    );
+
+    
+    asterisk.position.set(0, 0, -2);
+    state.camera.add(asterisk);
+    state.scene.add(state.camera);
 
 
     return state;

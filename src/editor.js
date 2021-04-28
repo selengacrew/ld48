@@ -1,14 +1,11 @@
-
+let grabbed = false;
 
 function editor_update(t, dt, state) {
 
     // Object.keys(state.panorama).forEach(name => {state.panorama[name].visible = true;});
 
-    if (state.stationary_scene === null || state.movable_scene === null) {
-        console.log('no scenes selected.');
+    if (state.stationary_scene !== null || state.movable_scene !== null) {
   
-    }
-    else {
         state.panorama[state.stationary_scene].visible = true;
         state.panorama[state.stationary_scene].material.uniforms.opacity.value = 1. - state.scene_opacity;
         state.panorama[state.stationary_scene].material.uniforms.grid.value = state.scene_grid ? 1. : 0.;
@@ -50,18 +47,44 @@ function editor_update(t, dt, state) {
 
         }
 
-        if (state.grab_scene) { 
-            // new_panorama.position.copy(state.camera.position);
-            new_panorama.rotation.x = state.camera.rotation.x + state.offset_x;
-            new_panorama.rotation.y = state.camera.rotation.y + state.offset_y;
-            new_panorama.rotation.z = state.camera.rotation.z + state.offset_z;
+        let wp = new THREE.Vector3(0, 0, 0); 
+        let world_position = new_panorama.getWorldPosition(wp);
 
+        if (state.grab_scene && !grabbed) { 
+            console.log("grabbing");
+
+            grabbed = true;
+
+
+            let distance =
+                // Math.pow(world_position.x - state.camera.position.x, 2) +
+                // Math.pow(world_position.y - state.camera.position.y, 2) +
+                Math.abs(world_position.z - state.camera.position.z)
+
+            state.camera.add(new_panorama);
+            new_panorama.position.set(0, 0, -distance);
             new_panorama.updateMatrix();
-
-            state.camera.lookAt(new_panorama.position);
-
+      
         }
 
+        else if (!state.grab_scene && grabbed) {
+            console.log("setting position");
+            grabbed = false;
+            // let world_position = new_panorama.getWorldPosition(new_panorama.position);
+
+            new_panorama.position.set(
+                world_position.x, 
+                world_position.y, 
+                world_position.z);
+            new_panorama.rotation.set(state.camera.rotation.x, state.camera.rotation.y, state.camera.rotation.z);
+            state.scene.add(new_panorama);
+            console.log(new_panorama.position);
+
+            
+        }
+    
+
+    
     }
 
     if (!state.move_scene && !state.rotate_scene) {
@@ -79,5 +102,7 @@ function editor_update(t, dt, state) {
         state.scene_opacity = 0.;
     }
 
+    
 }
+
 
