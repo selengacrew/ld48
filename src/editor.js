@@ -64,6 +64,7 @@ function editor_update(t, dt, state) {
 
             state.camera.add(new_panorama);
             new_panorama.position.set(0, 0, -distance);
+            new_panorama.rotation.set(0, 0, 0);
             // new_panorama.rotation.set(-state.camera.rotation.x, -state.camera.rotation.y, state.camera.rotation.z);
 
 
@@ -78,13 +79,13 @@ function editor_update(t, dt, state) {
             console.log("setting position");
             grabbed = false;
             // let world_position = new_panorama.getWorldPosition(new_panorama.position);
+            state.scene.add(new_panorama);
 
             new_panorama.position.set(
                 world_position.x, 
                 world_position.y, 
                 world_position.z);
-            // new_panorama.rotation.set(state.camera.rotation.x, state.camera.rotation.y, state.camera.rotation.z);
-            state.scene.add(new_panorama);
+            new_panorama.rotation.set(state.camera.rotation.x, state.camera.rotation.y, state.camera.rotation.z);
             console.log(new_panorama.position);
             console.log("rotations fin");
             console.log(new_panorama.rotation);
